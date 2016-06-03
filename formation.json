@@ -5,7 +5,17 @@
       "Default": "console-private",
       "Description": "",
       "Type": "String"
+    }
+  },
+  "Outputs": {
+    "DynamoDBAccessKeyId": {
+      "Value": {
+        "Ref": "ConsolePrivateDynamoDBAccess"
+      }
     },
+    "DynamoDBSecretAccessKey": {
+      "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
+    }
   },
   "Resources": {
     "ConsolePrivateDynamoDBUser": {
