@@ -86,7 +86,7 @@
     "ConsolePrivateOrganizationsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
       "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organization" ]]},
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organizations" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "name", "AttributeType" : "S" }
