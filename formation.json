@@ -29,7 +29,14 @@
               "Statement": [{ 
                 "Effect": "Allow", 
                 "Action": "dynamodb:*", 
-                "Resource": "arn:aws:dynamodb:*:*:table/console-private-*" 
+                "Resource": {
+                  "Fn::Join": ["", [
+                    "arn:aws:dynamodb:*:*:table/",
+                    {"Ref": "TablePrefix"},
+                    "-*"
+                    ]
+                  ]
+                }
               }]
             }
           }
