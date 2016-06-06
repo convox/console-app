@@ -47,7 +47,7 @@
     "ConsolePrivateUsersDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
       "Properties" : {
-        "TableName" : "console-private-users",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-users" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
@@ -86,7 +86,7 @@
     "ConsolePrivateOrganizationsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
       "Properties" : {
-        "TableName" : "console-private-organizations",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organization" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "name", "AttributeType" : "S" }
@@ -105,7 +105,7 @@
       "Type" : "AWS::DynamoDB::Table",
       "DependsOn" : "ConsolePrivateOrganizationsDynamoDBTable" ,
       "Properties" : {
-        "TableName" : "console-private-organization-invites",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organization-invites" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
@@ -142,7 +142,7 @@
       "Type" : "AWS::DynamoDB::Table",
       "DependsOn" : "ConsolePrivateOrganizationInvitesDynamoDBTable" ,
       "Properties" : {
-        "TableName" : "console-private-racks",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-racks" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "organization-id", "AttributeType" : "S" },
@@ -167,7 +167,7 @@
       "Type" : "AWS::DynamoDB::Table",
       "DependsOn" : "ConsolePrivateRacksDynamoDBTable" ,
       "Properties" : {
-        "TableName" : "console-private-installs",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-installs" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "user-id", "AttributeType" : "S" }
@@ -186,7 +186,7 @@
       "Type" : "AWS::DynamoDB::Table",
       "DependsOn" : "ConsolePrivateInstallsDynamoDBTable" ,
       "Properties" : {
-        "TableName" : "console-private-integrations",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-integrations" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "provider", "AttributeType" : "S" },
@@ -211,7 +211,7 @@
       "Type" : "AWS::DynamoDB::Table",
       "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
       "Properties" : {
-        "TableName" : "console-private-webhooks",
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-webhooks" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "integration-id", "AttributeType" : "S" },
