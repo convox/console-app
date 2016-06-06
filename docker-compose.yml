@@ -5,7 +5,6 @@ web:
     - 443:5001
   labels:
     - "convox.port.443.protocol=tls"
-    - "convox.port.443.proxy=true"
     - "convox.port.443.secure=true"
   env:
     ALLOW_SIGNUP=false
