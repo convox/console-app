@@ -8,4 +8,4 @@ web:
     - "convox.port.443.secure=true"
   env:
     ALLOW_SIGNUP=false
-    TABLE_PREFIX=console
+    TABLE_PREFIX=console-private
