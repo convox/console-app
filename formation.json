@@ -243,6 +243,18 @@
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
+    },
+    "ConsolePrivateAuditLogsDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
+      "Properties" : {
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-audit-logs" ]]},
+        "AttributeDefinitions" : [
+          { "AttributeName" : "id", "AttributeType" : "S" }
+        ],
+        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+      }
     }
   }
 }
