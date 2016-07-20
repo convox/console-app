@@ -59,7 +59,6 @@
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
           { "AttributeName" : "api-key", "AttributeType" : "S" },
-          { "AttributeName" : "github-id", "AttributeType" : "N" },
           { "AttributeName" : "password-reset-token", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
@@ -81,13 +80,7 @@
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        },
-        {
-          "IndexName" : "github-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "github-id", "KeyType" : "HASH" }],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
+        }
       }
     },
     "ConsolePrivateOrganizationsDynamoDBTable" : {
