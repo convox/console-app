@@ -80,7 +80,7 @@
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }
+        }]
       }
     },
     "ConsolePrivateOrganizationsDynamoDBTable" : {
@@ -250,10 +250,21 @@
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-audit-logs" ]]},
         "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" }
+          { "AttributeName" : "id", "AttributeType" : "S" },
+          { "AttributeName" : "rack", "AttributeType" : "S" },
+          { "AttributeName" : "timestamp", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
+        "GlobalSecondaryIndexes" : [{
+          "IndexName" : "rack-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "rack", "KeyType": "HASH" },
+            { "AttributeName": "timestamp", "KeyType": "RANGE" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        }],
       }
     }
   }
