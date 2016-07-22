@@ -264,7 +264,7 @@
             { "AttributeName": "timestamp", "KeyType": "RANGE" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
-        }],
+        }]
       }
     }
   }
