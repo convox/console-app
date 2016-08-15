@@ -28,12 +28,27 @@
               "Version": "2012-10-17",
               "Statement": [{ 
                 "Effect": "Allow", 
-                "Action": "dynamodb:*", 
+                "Action": [
+                  "dynamodb:BatchGetItem",
+                  "dynamodb:BatchWriteItem",
+                  "dynamodb:DeleteItem",
+                  "dynamodb:DescribeStream",
+                  "dynamodb:DescribeTable",
+                  "dynamodb:GetItem",
+                  "dynamodb:GetRecords",
+                  "dynamodb:ListStreams",
+                  "dynamodb:ListTables",
+                  "dynamodb:PutItem",
+                  "dynamodb:Query",
+                  "dynamodb:UpdateItem"
+                ],
                 "Resource": {
-                  "Fn::Join": ["", [
-                    "arn:aws:dynamodb:*:*:table/",
-                    {"Ref": "TablePrefix"},
-                    "-*"
+                  "Fn::Join": [
+                    "", 
+                    [
+                      "arn:aws:dynamodb:*:*:table/",
+                      {"Ref": "TablePrefix"},
+                      "-*"
                     ]
                   ]
                 }
@@ -58,7 +73,7 @@
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
-          { "AttributeName" : "api-key", "AttributeType" : "S" },
+          { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
           { "AttributeName" : "password-reset-token", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
@@ -70,9 +85,9 @@
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         },
         {
-          "IndexName" : "api-key-index",
+          "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "api-key", "KeyType" : "HASH" }],                         
+          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         },
         {
