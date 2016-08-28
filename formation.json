@@ -28,12 +28,27 @@
               "Version": "2012-10-17",
               "Statement": [{ 
                 "Effect": "Allow", 
-                "Action": "dynamodb:*", 
+                "Action": [
+                  "dynamodb:BatchGetItem",
+                  "dynamodb:BatchWriteItem",
+                  "dynamodb:DeleteItem",
+                  "dynamodb:DescribeStream",
+                  "dynamodb:DescribeTable",
+                  "dynamodb:GetItem",
+                  "dynamodb:GetRecords",
+                  "dynamodb:ListStreams",
+                  "dynamodb:ListTables",
+                  "dynamodb:PutItem",
+                  "dynamodb:Query",
+                  "dynamodb:UpdateItem"
+                ],
                 "Resource": {
-                  "Fn::Join": ["", [
-                    "arn:aws:dynamodb:*:*:table/",
-                    {"Ref": "TablePrefix"},
-                    "-*"
+                  "Fn::Join": [
+                    "", 
+                    [
+                      "arn:aws:dynamodb:*:*:table/",
+                      {"Ref": "TablePrefix"},
+                      "-*"
                     ]
                   ]
                 }
@@ -58,8 +73,7 @@
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
-          { "AttributeName" : "api-key", "AttributeType" : "S" },
-          { "AttributeName" : "password-reset-token", "AttributeType" : "S" }
+          { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
@@ -70,15 +84,9 @@
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         },
         {
-          "IndexName" : "api-key-index",
+          "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "api-key", "KeyType" : "HASH" }],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        },
-        {
-          "IndexName" : "password-reset-token-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],                         
+          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -262,6 +270,35 @@
           "KeySchema" : [
             { "AttributeName": "rack", "KeyType": "HASH" },
             { "AttributeName": "timestamp", "KeyType": "RANGE" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        }]
+      }
+    },
+    "ConsolePrivateDeployKeysDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "DependsOn" : "ConsolePrivateAuditLogsDynamoDBTable" ,
+      "Properties" : {
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-deploy-keys" ]]},
+        "AttributeDefinitions" : [
+          { "AttributeName" : "id", "AttributeType" : "S" },
+          { "AttributeName" : "key-hash", "AttributeType" : "S" },
+          { "AttributeName" : "organization-id", "AttributeType" : "S" },
+        ],
+        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
+        "GlobalSecondaryIndexes" : [{
+          "IndexName" : "key-hash-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "key-hash", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        }, {
+          "IndexName" : "organization-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "organization-id", "KeyType": "HASH" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }]
