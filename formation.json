@@ -5,6 +5,286 @@
       "Default": "console-private",
       "Description": "",
       "Type": "String"
+    },
+    "AuditLogsReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "AuditLogsWriteCapacity": {
+      "Default": 20,
+      "Description": "",
+      "Type": "Number"
+    },
+    "AuditLogsRackIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "AuditLogsRackIndexWriteCapacity": {
+      "Default": 20,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysReadCapacity": {
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysKeyHashIndexReadCapacity": {
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysKeyHashIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysOrganizationIdIndexReadCapacity" :{
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    },
+    "DeployKeysOrganizationIdIndexWriteCapacity":{
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "IntegrationsReadCapacity": {
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    },
+    "IntegrationsWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    },
+    "IntegrationsProviderIndexReadCapacity": {
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    },
+    "IntegrationsProviderIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "IntegrationsOrganizationIdIndexReadCapacity": {
+      "Default": 10,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "IntegrationsOrganizationIdIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "InstallsReadCapacity": {
+      "Default": 20,
+      "Description": "",
+      "Type": "Number"
+    },
+    "InstallsWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    },
+    "InstallsUserIdIndexWriteCapacity": {
+      "Default": 20,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "InstallsUserIdIndexReadCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationsReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationsWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationsNameIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationsNameIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationInvitesReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationInvitesWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationInvitesEmailIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesEmailIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesTokenIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesTokenIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesInviterIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "OrganizationInvitesInviterIdIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesOrganizationIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "OrganizationInvitesOrganizationIdIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "RacksReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "RacksWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "RacksOrganizationIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "RacksOrganizationIdIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "RacksCreatorIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "RacksCreatorIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "UsersReadCapacity": {
+      "Default": 100,
+      "Description": "",
+      "Type": "Number"
+    },
+    "UsersWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "UsersApiKeyHashIndexReadCapacity": {
+      "Default": 100,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "UsersApiKeyHashIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    },
+    "UsersEmailIndexReadCapacity": {
+      "Default": 100,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "UsersEmailIndexWriteCapacity": {
+      "Default": 5,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    },
+    "WebhooksWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    },
+    "WebhooksAppIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksAppIdIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    },
+    "WebhooksIntegrationIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksIntegrationIdIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksRackIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksRackIdIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksRemoteIdIndexReadCapacity": {
+      "Default": 50,
+      "Description": "",
+      "Type": "Number"
+    }, 
+    "WebhooksRemoteIdIndexWriteCapacity": {
+      "Default": 1,
+      "Description": "",
+      "Type": "Number"
     }
   },
   "Outputs": {
@@ -76,18 +356,18 @@
           { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "UsersReadCapacity" }, "WriteCapacityUnits" : { "Ref": "UsersWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "email-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "UsersEmailIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "UsersEmailIndexWriteCapacity" } }
         },
         {
           "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "UsersApiKeyHashIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "UsersApiKeyHashIndexWriteCapacity" } }
         }]
       }
     },
@@ -101,11 +381,12 @@
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationsReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationsWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "name-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationsNameIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationsNameIndexWriteCapacity" } }
         }]
       }
     },
@@ -122,27 +403,27 @@
           { "AttributeName" : "token", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationInvitesReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationInvitesWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "email-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationInvitesEmailIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationInvitesEmailIndexWriteCapacity" } }
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationInvitesOrganizationIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationInvitesOrganizationIdIndexWriteCapacity" } }
         }, {
         "IndexName" : "inviter-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "inviter-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationInvitesInviterIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationInvitesInviterIdIndexWriteCapacity" } }
         }, {
         "IndexName" : "token-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "token", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "OrganizationInvitesTokenIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "OrganizationInvitesTokenIndexWriteCapacity" } }
         }]
       }
     },
@@ -157,17 +438,17 @@
           { "AttributeName" : "creator", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "RacksReadCapacity" }, "WriteCapacityUnits" : { "Ref": "RacksWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "creator-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "creator", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "RacksCreatorIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "RacksCreatorIndexWriteCapacity" } },
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "RacksOrganizationIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "RacksOrganizationIdIndexWriteCapacity" } }
         }]
       }
     },
@@ -181,12 +462,12 @@
           { "AttributeName" : "user-id", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "InstallsReadCapacity" }, "WriteCapacityUnits" : { "Ref": "InstallsWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "user-id-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "user-id", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "InstallsUserIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "InstallsUserIdIndexWriteCapacity" } }
         }]
       }
     },
@@ -201,17 +482,17 @@
           { "AttributeName" : "organization-id", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "IntegrationsReadCapacity" }, "WriteCapacityUnits" : { "Ref": "IntegrationsWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "provider-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "provider", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "IntegrationsProviderIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "IntegrationsProviderIndexWriteCapacity" } },
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "IntegrationsOrganizationIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "IntegrationsOrganizationIdIndexWriteCapacity" } }
         }]
       }
     },
@@ -228,27 +509,27 @@
           { "AttributeName" : "app-id", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "WebhooksReadCapacity" }, "WriteCapacityUnits" : { "Ref": "WebhooksWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "integration-id-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "integration-id", "KeyType" : "HASH"}],                         
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "WebhooksIntegrationIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "WebhooksIntegrationIdIndexWriteCapacity" } },
         }, {
         "IndexName" : "remote-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "remote-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "WebhooksRemoteIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "WebhooksRemoteIdIndexWriteCapacity" } },
         }, {
         "IndexName" : "app-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "app-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "WebhooksAppIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "WebhooksAppIdIndexWriteCapacity" } },
         }, {
         "IndexName" : "rack-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "rack-id", "KeyType" : "HASH"}],                         
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "WebhooksRackIdIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "WebhooksRackIdIndexWriteCapacity" } }
         }]
       }
     },
@@ -263,7 +544,7 @@
           { "AttributeName" : "timestamp", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "AuditLogsReadCapacity" }, "WriteCapacityUnits" : { "Ref": "AuditLogsWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "rack-index",
           "Projection": { "ProjectionType": "ALL" },
@@ -271,7 +552,7 @@
             { "AttributeName": "rack", "KeyType": "HASH" },
             { "AttributeName": "timestamp", "KeyType": "RANGE" }
           ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "AuditLogsRackIndexReadCapacity" }, "WriteCapacityUnits" : { "Ref": "AuditLogsRackIndexWriteCapacity" } }
         }]
       }
     },
@@ -286,21 +567,21 @@
           { "AttributeName" : "organization-id", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "DeployKeysReadCapacity" }, "WriteCapacityUnits" : { "Ref": "DeployKeysWriteCapacity" } },
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
             { "AttributeName": "key-hash", "KeyType": "HASH" }
           ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "DeployKeysKeyHashIndexReadCapacity"}, "WriteCapacityUnits" : { "Ref": "DeployKeysKeyHashIndexWriteCapacity"} }
         }, {
           "IndexName" : "organization-id-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
             { "AttributeName": "organization-id", "KeyType": "HASH" }
           ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : { "Ref": "DeployKeysOrganizationIdIndexReadCapacity"}, "WriteCapacityUnits" : { "Ref": "DeployKeysOrganizationIdIndexWriteCapacity"} }
         }]
       }
     }
