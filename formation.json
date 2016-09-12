@@ -5,7 +5,63 @@
       "Default": "console-private",
       "Description": "",
       "Type": "String"
+    },
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+    "InstanceType" : {
+      "Description" : "Container Instance type",
+      "Type" : "String",
+      "Default" : "t2.micro",
+      "AllowedValues" : [ "t2.micro", "t2.small", "t2.medium", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "r3.4xlarge", "r3.8xlarge", "i2.xlarge", "i2.2xlarge", "i2.4xlarge", "i2.8xlarge", "hi1.4xlarge", "hs1.8xlarge", "cr1.8xlarge", "cc2.8xlarge" ]
+      ,
+      "ConstraintDescription" : "must be a valid EC2 instance type."
+    },
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    } 
+  },
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t2.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t2.medium"   : { "Arch" : "HVM64"  },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"      : { "HVM64" : "ami-34ddbe5c"  }
     }
+
   },
   "Outputs": {
     "DynamoDBAccessKeyId": {
@@ -15,9 +71,78 @@
     },
     "DynamoDBSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
+    },
+    "ECSInstance" : {
+      "Description" : "Location for Amazon ECS Instance",
+      "Value" : { "Fn::Join" : ["", ["ssh ec2-user@", { "Fn::GetAtt" : [ "ContainerInstance", "PublicDnsName" ]}]] }
     }
   },
   "Resources": {
+    "Cluster": {
+      "Type": "AWS::ECS::Cluster",
+    },
+    "ContainerInstance" : {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "IamInstanceProfile" : { "Ref" : "ECSIamInstanceProfile" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+          "InstanceType"   : { "Ref" : "InstanceType" },
+          "SecurityGroups" : [ {"Ref" : "ECSQuickstartSecurityGroup"} ],
+          "KeyName"        : { "Ref" : "KeyName" },
+          "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+            "#!/bin/bash -xe\n",
+            "echo ECS_CLUSTER=", { "Ref" : "Cluster" },
+            " >> /etc/ecs/ecs.config\n"
+          ]]}}
+      }
+    },
+
+    "ECSQuickstartSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable HTTP access via SSH",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}}
+        ]
+      }
+    },
+
+    "ECSIamInstanceProfile" : {
+      "Type" : "AWS::IAM::InstanceProfile",
+      "Properties" : {
+        "Path" : "/",
+        "Roles" : [{ "Ref" : "ECSQuickstartRole" }]
+      }
+    },
+
+    "ECSQuickstartRole" : {
+      "Type" : "AWS::IAM::Role",
+      "Properties" : {
+        "AssumeRolePolicyDocument": {
+          "Version" : "2012-10-17",
+          "Statement" : [ {
+            "Effect" : "Allow",
+            "Principal" : {
+              "Service" : [ "ec2.amazonaws.com" ]
+            },
+            "Action" : [ "sts:AssumeRole" ]
+          } ]
+        },
+        "Path" : "/",
+        "Policies" : [ {
+          "PolicyName" : "ECSQuickstart",
+          "PolicyDocument": {
+            "Version" : "2012-10-17",
+            "Statement" : [ {
+              "Effect" : "Allow",
+              "Action" : "ecs:*",
+              "Resource" : "*"
+            } ]
+          }
+        } ]
+      }
+    },
     "ConsolePrivateDynamoDBUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
@@ -51,7 +176,11 @@
                       "-*"
                     ]
                   ]
-                }
+                },
+              }, {
+              "Effect" : "Allow",
+              "Action" : "ecs:*",
+              "Resource" : "*"
               }]
             }
           }
@@ -295,12 +424,12 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }, {
-          "IndexName" : "organization-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        "IndexName" : "organization-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "organization-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }]
       }
     },
