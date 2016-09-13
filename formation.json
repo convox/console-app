@@ -52,6 +52,10 @@
                     ]
                   ]
                 }
+              }, {
+              "Effect" : "Allow",
+              "Action" : "ecs:*",
+              "Resource" : "*"
               }]
             }
           }
