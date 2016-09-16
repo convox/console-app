@@ -73,6 +73,7 @@
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
+          { "AttributeName" : "api-key", "AttributeType" : "S" },
           { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
           { "AttributeName" : "password-reset-token", "AttributeType" : "S" },
         ],
@@ -82,6 +83,11 @@
           "IndexName" : "email-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],                         
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        }, {
+          "IndexName" : "api-key-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [{ "AttributeName" : "api-key", "KeyType" : "HASH" }],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
           "IndexName" : "api-key-hash-index",
