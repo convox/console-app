@@ -52,6 +52,10 @@
                     ]
                   ]
                 }
+              }, {
+              "Effect" : "Allow",
+              "Action" : "ecs:*",
+              "Resource" : "*"
               }]
             }
           }
@@ -108,6 +112,7 @@
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organizations" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
+          { "AttributeName" : "stripe-id", "AttributeType" : "S" },
           { "AttributeName" : "name", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
@@ -116,6 +121,11 @@
           "IndexName" : "name-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],                         
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        }, {
+          "IndexName" : "stripe-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],                         
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -313,6 +323,18 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }]
+      }
+    },
+    "ConsolePrivateJobsDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "DependsOn" : "ConsolePrivateDeployKeysDynamoDBTable" ,
+      "Properties" : {
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-jobs" ]]},
+        "AttributeDefinitions" : [
+          { "AttributeName" : "id", "AttributeType" : "S" },
+        ],
+        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
       }
     }
   }
