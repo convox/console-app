@@ -26,8 +26,8 @@
             "PolicyName": "ConsolePrivateDynamoDBFullAccess",
             "PolicyDocument": {
               "Version": "2012-10-17",
-              "Statement": [{ 
-                "Effect": "Allow", 
+              "Statement": [{
+                "Effect": "Allow",
                 "Action": [
                   "dynamodb:BatchGetItem",
                   "dynamodb:BatchWriteItem",
@@ -44,7 +44,7 @@
                 ],
                 "Resource": {
                   "Fn::Join": [
-                    "", 
+                    "",
                     [
                       "arn:aws:dynamodb:*:*:table/",
                       {"Ref": "TablePrefix"},
@@ -84,13 +84,13 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "email-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         },
         {
           "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],                         
+          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -108,7 +108,7 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "name-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -130,22 +130,22 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "email-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "inviter-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "inviter-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "inviter-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "token-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "token", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "token", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -165,12 +165,12 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "creator-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "creator", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "creator", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -189,7 +189,7 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "user-id-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "user-id", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "user-id", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -209,12 +209,12 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "provider-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "provider", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "provider", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "organization-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -236,22 +236,22 @@
         "GlobalSecondaryIndexes" : [{
           "IndexName" : "integration-id-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "integration-id", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "integration-id", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "remote-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "remote-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "remote-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "app-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "app-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "app-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "rack-id-index",
         "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "rack-id", "KeyType" : "HASH"}],                         
+        "KeySchema" : [{ "AttributeName" : "rack-id", "KeyType" : "HASH"}],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -315,9 +315,18 @@
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-jobs" ]]},
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
+          { "AttributeName" : "organization-id", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
+        "GlobalSecondaryIndexes" : [{
+          "IndexName" : "organization-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "organization-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        }]
       }
     }
   }
