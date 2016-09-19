@@ -52,6 +52,10 @@
                     ]
                   ]
                 }
+              }, {
+              "Effect" : "Allow",
+              "Action" : "ecs:*",
+              "Resource" : "*"
               }]
             }
           }
@@ -307,6 +311,18 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }]
+      }
+    },
+    "ConsolePrivateJobsDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "DependsOn" : "ConsolePrivateDeployKeysDynamoDBTable" ,
+      "Properties" : {
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-jobs" ]]},
+        "AttributeDefinitions" : [
+          { "AttributeName" : "id", "AttributeType" : "S" },
+        ],
+        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
       }
     }
   }
