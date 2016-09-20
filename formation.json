@@ -328,6 +328,43 @@
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
       }
+    },
+    "ConsolePrivateWorkflowsDynamoDBTable" : {
+      "Type" : "AWS::DynamoDB::Table",
+      "DependsOn" : "ConsolePrivateJobsDynamoDBTable" ,
+      "Properties" : {
+        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-workflows" ]]},
+        "AttributeDefinitions" : [
+          { "AttributeName" : "id", "AttributeType" : "S" },
+          { "AttributeName" : "name", "AttributeType" : "S" },
+          { "AttributeName" : "organization-id", "AttributeType" : "S" },
+          { "AttributeName" : "integration-id", "AttributeType" : "S" },
+        ],
+        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
+        "GlobalSecondaryIndexes" : [{
+          "IndexName" : "name-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "name", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        },{
+          "IndexName" : "organization-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "organization-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        },{
+          "IndexName" : "integration-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "integration-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        }]
+      }
     }
   }
 }
