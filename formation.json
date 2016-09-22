@@ -316,6 +316,7 @@
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "organization-id", "AttributeType" : "S" },
+          { "AttributeName" : "workflow-id", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
@@ -324,6 +325,13 @@
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
             { "AttributeName": "organization-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        }, {
+          "IndexName" : "workflow-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "workflow-id", "KeyType": "HASH" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
@@ -339,6 +347,8 @@
           { "AttributeName" : "name", "AttributeType" : "S" },
           { "AttributeName" : "organization-id", "AttributeType" : "S" },
           { "AttributeName" : "integration-id", "AttributeType" : "S" },
+          { "AttributeName" : "trigger-id", "AttributeType" : "S" },
+          { "AttributeName" : "trigger-kind", "AttributeType" : "S" },
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
@@ -361,6 +371,20 @@
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
             { "AttributeName": "integration-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        },{
+          "IndexName" : "trigger-id-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "trigger-id", "KeyType": "HASH" }
+          ],
+          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        },{
+          "IndexName" : "trigger-kind-index",
+          "Projection": { "ProjectionType": "ALL" },
+          "KeySchema" : [
+            { "AttributeName": "trigger-kind", "KeyType": "HASH" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
