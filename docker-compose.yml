@@ -1,5 +1,5 @@
 web:
-  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20161021
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:latest
   ports:
     - 80:5000
     - 443:443
@@ -11,4 +11,4 @@ web:
     ALLOW_SIGNUP=false
     TABLE_PREFIX=console-private
 workers:
-  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20161021
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:latest
