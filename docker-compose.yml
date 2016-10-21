@@ -1,11 +1,14 @@
 web:
-  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:latest
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20161021
   ports:
     - 80:5000
     - 443:443
   labels:
     - "convox.port.443.protocol=tls"
     - "convox.port.443.secure=true"
+    - "convox.port.443.proxy=true"
   env:
     ALLOW_SIGNUP=false
     TABLE_PREFIX=console-private
+workers:
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20161021
