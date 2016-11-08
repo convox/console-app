@@ -5,6 +5,10 @@
       "Default": "console-private",
       "Description": "",
       "Type": "String"
+    },
+    "WorkflowBucket": {
+      "Description": "S3 bucket used as an object store for Workflows",
+      "Type": "String"
     }
   },
   "Outputs": {
@@ -95,7 +99,7 @@
         }, {
           "IndexName" : "password-reset-token-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],                         
+          "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -119,7 +123,7 @@
         }, {
           "IndexName" : "stripe-id-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],                         
+          "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
@@ -375,6 +379,12 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
+      }
+    },
+    "ConsolePrivateWorkflowBucket":{
+      "Type" : "AWS::S3::Bucket",
+      "Properties" : {
+        "BucketName" : {"Ref": "WorkflowBucket"}
       }
     }
   }
