@@ -332,6 +332,7 @@
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "organization-id", "AttributeType" : "S" },
           { "AttributeName" : "workflow-id", "AttributeType" : "S" },
+          { "AttributeName": "created", "AttributeType": "S"}
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
@@ -346,7 +347,7 @@
           "IndexName" : "job-created-org-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HAS" },
+            { "AttributeName": "organization-id", "KeyType": "HASH" },
             { "AttributeName": "created", "KeyType": "RANGE" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
