@@ -92,15 +92,15 @@
           "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
-          "IndexName" : "api-key-hash-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "IndexName" : "api-key-hash-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
-          "IndexName" : "password-reset-token-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "IndexName" : "password-reset-token-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
     },
@@ -121,10 +121,10 @@
           "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
-          "IndexName" : "stripe-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        "IndexName" : "stripe-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
     },
@@ -314,12 +314,12 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }, {
-          "IndexName" : "organization-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
+        "IndexName" : "organization-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "organization-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
         }]
       }
     },
@@ -344,13 +344,19 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
-          "IndexName" : "job-created-org-index",
+          "IndexName" : "created-index",
           "Projection": { "ProjectionType": "ALL" },
           "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HASH" },
-            { "AttributeName": "created", "KeyType": "RANGE" }
+            { "AttributeName": "created", "KeyType": "HASH" }
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        }, {
+        "IndexName" : "workflow-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "workflow-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
       }
     },
@@ -377,33 +383,33 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         },{
-          "IndexName" : "organization-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "IndexName" : "organization-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "organization-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         },{
-          "IndexName" : "integration-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "integration-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "IndexName" : "integration-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "integration-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
-          "IndexName" : "trigger-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "trigger-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "IndexName" : "trigger-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "trigger-id", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
-          "IndexName" : "trigger-kind-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "trigger-kind", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "IndexName" : "trigger-kind-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "trigger-kind", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
       }
     },
