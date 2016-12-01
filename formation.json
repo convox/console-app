@@ -302,7 +302,7 @@
         "AttributeDefinitions" : [
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "key-hash", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" },
+          { "AttributeName" : "organization-id", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
