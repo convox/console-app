@@ -82,7 +82,7 @@
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
           { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
-          { "AttributeName" : "password-reset-token", "AttributeType" : "S" },
+          { "AttributeName" : "password-reset-token", "AttributeType" : "S" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
