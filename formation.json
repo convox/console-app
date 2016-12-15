@@ -83,7 +83,8 @@
           { "AttributeName" : "id", "AttributeType" : "S" },
           { "AttributeName" : "email", "AttributeType" : "S" },
           { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
-          { "AttributeName" : "password-reset-token", "AttributeType" : "S" }
+          { "AttributeName" : "password-reset-token", "AttributeType" : "S" },
+          { "AttributeName" : "github-id", "AttributeType" : "N" }
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
@@ -101,6 +102,11 @@
         "IndexName" : "password-reset-token-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+        }, {
+        "IndexName" : "github-id-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [{ "AttributeName" : "github-id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }]
       }
