@@ -16,6 +16,11 @@
     "DynamoDBSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
     },
+    "AuditLogObjectStore": {
+      "Value": {
+        "Ref": "ConsolePrivateAuditLogBucket"
+      }
+    },
     "WorkflowObjectStore": {
       "Value": {
         "Ref": "ConsolePrivateWorkflowBucket"
@@ -345,12 +350,12 @@
           ],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
-          "IndexName" : "created-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "created", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        "IndexName" : "created-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "created", "KeyType": "HASH" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
         "IndexName" : "job-created-org-index",
         "Projection": { "ProjectionType": "ALL" },
@@ -421,6 +426,53 @@
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
       }
+    }, 
+    "ConsolePrivateAuditLogBucketPolicy": {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : { "Ref":"ConsolePrivateAuditLogBucket" },
+        "PolicyDocument" : {
+          "Statement":[{
+            "Action":["s3:PutObject"],
+            "Effect":"Deny",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateAuditLogBucket" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringNotEquals":{
+                "s3:x-amz-server-side-encryption":"aws:kms"
+              }
+            }
+          }]
+        }
+      }
+    }, 
+    "ConsolePrivateAuditLogKMSKey": {
+      "Type" : "AWS::KMS::Key",
+      "Properties" : {
+        "Description" : "used for encrypting audit logs",
+        "Enabled" : true,
+        "EnableKeyRotation" : false,
+        "KeyPolicy" : {
+          "Statement":[{
+            "Sid": "Allow use of the key",
+            "Effect": "Allow",
+            "Principal": {"AWS": [
+              {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"  ]}
+            ]},
+            "Action": [
+              "kms:Encrypt",
+              "kms:Decrypt",
+              "kms:ReEncrypt*",
+              "kms:GenerateDataKey*",
+              "kms:DescribeKey"
+            ],
+            "Resource": "*"
+          }]
+        }
+      }
+    },
+    "ConsolePrivateAuditLogBucket":{
+      "Type" : "AWS::S3::Bucket"
     },
     "ConsolePrivateWorkflowBucket":{
       "Type" : "AWS::S3::Bucket"
