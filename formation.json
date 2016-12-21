@@ -454,12 +454,22 @@
         "EnableKeyRotation" : false,
         "KeyPolicy" : {
           "Statement":[{
-            "Sid": "Allow use of the key",
+            "Sid": "Allow administration of the key",
             "Effect": "Allow",
-            "Principal": {"AWS": [
-              {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"  ]}
-            ]},
+            "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
             "Action": [
+              "kms:Create*",
+              "kms:Describe*",
+              "kms:Enable*",
+              "kms:List*",
+              "kms:Put*",
+              "kms:Update*",
+              "kms:Revoke*",
+              "kms:Disable*",
+              "kms:Get*",
+              "kms:Delete*",
+              "kms:ScheduleKeyDeletion",
+              "kms:CancelKeyDeletion",
               "kms:Encrypt",
               "kms:Decrypt",
               "kms:ReEncrypt*",
