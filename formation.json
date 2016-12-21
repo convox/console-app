@@ -462,7 +462,7 @@
           "Statement":[{
             "Sid": "Allow administration of the key",
             "Effect": "Allow",
-            "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
+            "Principal": { "AWS": { "Fn::Join": ["", ["arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"]] } },
             "Action": [
               "kms:Create*",
               "kms:Describe*",
@@ -475,14 +475,21 @@
               "kms:Get*",
               "kms:Delete*",
               "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion",
-              "kms:Encrypt",
-              "kms:Decrypt",
-              "kms:ReEncrypt*",
-              "kms:GenerateDataKey*",
-              "kms:DescribeKey"
+              "kms:CancelKeyDeletion"
             ],
             "Resource": "*"
+          },{
+          "Sid": "Allow use of the key",
+          "Effect": "Allow",
+          "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
+          "Action": [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey"
+          ],
+          "Resource": "*"
           }]
         }
       }
