@@ -25,6 +25,11 @@
       "Value": {
         "Ref": "ConsolePrivateWorkflowBucket"
       }
+    },
+    "S3EncryptionKey": {
+      "Value": {
+        "Ref": "ConsolePrivateAuditLogKMSKey"
+      }
     }
   },
   "Resources": {
