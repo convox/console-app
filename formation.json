@@ -71,7 +71,49 @@
               "Effect" : "Allow",
               "Action" : "ecs:*",
               "Resource" : "*"
-              }]
+              }, {
+              "Action": "s3:*",
+              "Resource": [
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateWorkflowBucket"}
+                  ]
+                ],
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateWorkflowBucket"},
+                    "/*"
+                  ]
+                ]
+              ],
+              "Effect": "Allow"
+              }, {
+              "Action": "s3:*",
+              "Resource": [
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateAuditLogBucket"}
+                  ]
+                ],
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateAuditLogBucket"},
+                    "/*"
+                  ]
+                ]
+              ],
+              "Effect": "Allow"
+
+              }
+              ]
             }
           }
         ]
