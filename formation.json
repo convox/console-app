@@ -69,7 +69,11 @@
                 }
               }, {
               "Effect" : "Allow",
-              "Action" : "ecs:*",
+              "Action" : [
+                "sts:AssumeRole",
+                "iam:GetUser",
+                "ecs:*"
+              ],
               "Resource" : "*"
               }, {
               "Action": "s3:*",
