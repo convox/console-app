@@ -16,6 +16,14 @@
     "DynamoDBSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
     },
+    "IntegrationsAccessKeyId": {
+      "Value": {
+        "Ref": "ConsolePrivateIntegrationsAccess"
+      }
+    },
+    "IntegrationsSecretAccessKey": {
+      "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
+    },
     "AuditLogObjectStore": {
       "Value": {
         "Ref": "ConsolePrivateAuditLogBucket"
@@ -69,11 +77,7 @@
                 }
               }, {
               "Effect" : "Allow",
-              "Action" : [
-                "sts:AssumeRole",
-                "iam:GetUser",
-                "ecs:*"
-              ],
+              "Action" : "ecs:*",
               "Resource" : "*"
               }, {
               "Action": "s3:*",
@@ -128,6 +132,37 @@
         "Serial": "1",
         "Status": "Active",
         "UserName": { "Ref": "ConsolePrivateDynamoDBUser" }
+      }
+    },
+    "ConsolePrivateIntegrationsUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "Policies": [
+          {
+            "PolicyName": "ConsolePrivateIntegrationsAccess",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect" : "Allow",
+                  "Action" : [
+                    "sts:AssumeRole",
+                    "iam:GetUser"
+                ],
+                "Resource" : "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ConsolePrivateIntegrationsAccess": {
+      "Type": "AWS::IAM::AccessKey",
+      "Properties": {
+        "Serial": "1",
+        "Status": "Active",
+        "UserName": { "Ref": "ConsolePrivateIntegrationsUser" }
       }
     },
     "ConsolePrivateUsersDynamoDBTable" : {
@@ -482,7 +517,7 @@
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
       }
-    }, 
+    },
     "ConsolePrivateAuditLogBucketPolicy": {
       "Type" : "AWS::S3::BucketPolicy",
       "Properties" : {
@@ -501,7 +536,7 @@
           }]
         }
       }
-    }, 
+    },
     "ConsolePrivateAuditLogKMSKey": {
       "Type" : "AWS::KMS::Key",
       "Properties" : {
