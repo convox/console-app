@@ -456,6 +456,14 @@
         ],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }, {
+        "IndexName" : "workflow-id-created-index",
+        "Projection": { "ProjectionType": "ALL" },
+        "KeySchema" : [
+          { "AttributeName": "workflow-id", "KeyType": "HASH" },
+          { "AttributeName": "created", "KeyType": "RANGE" }
+        ],
+        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
+        }, {
         "IndexName" : "workflow-id-index",
         "Projection": { "ProjectionType": "ALL" },
         "KeySchema" : [
