@@ -8,36 +8,74 @@
     }
   },
   "Outputs": {
-    "DynamoDBAccessKeyId": {
-      "Value": {
-        "Ref": "ConsolePrivateDynamoDBAccess"
-      }
+    "AuditLogsObjectStore": {
+      "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
     },
-    "DynamoDBSecretAccessKey": {
+    "AwsRegion": {
+      "Value": { "Ref": "AWS::Region" }
+    },
+    "AwsAccessKeyId": {
+      "Value": { "Ref": "ConsolePrivateDynamoDBAccess" }
+    },
+    "AwsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
     },
-    "IntegrationAwsAccessKeyId": {
-      "Value": {
-        "Ref": "ConsolePrivateIntegrationsAccess"
-      }
+    "Development": {
+      "Value": "false"
     },
-    "IntegrationAwsSecretAccessKey": {
+    "IntegrationsAccessKeyId": {
+      "Value": { "Ref": "ConsolePrivateIntegrationsAccess" }
+    },
+    "IntegrationsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
     },
-    "AuditLogObjectStore": {
-      "Value": {
-        "Ref": "ConsolePrivateAuditLogBucket"
-      }
+    "MailgunApiKey": {
+      "Value": ""
     },
-    "WorkflowObjectStore": {
-      "Value": {
-        "Ref": "ConsolePrivateWorkflowBucket"
-      }
+    "MailgunApiUrl": {
+      "Value": ""
+    },
+    "Private": {
+      "Value": "true"
+    },
+    "RackKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "RollbarToken": {
+      "Value": ""
     },
     "S3EncryptionKey": {
-      "Value": {
-        "Ref": "ConsolePrivateAuditLogKMSKey"
-      }
+      "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
+    },
+    "SegmentWriteToken": {
+      "Value": ""
+    },
+    "SessionKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "SnoopEncryptionKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "StripePublishableKey": {
+      "Value": ""
+    },
+    "StripeSecretKey": {
+      "Value": ""
+    },
+    "SupportEmail": {
+      "Value": ""
+    },
+    "SupportName": {
+      "Value": ""
+    },
+    "SupportToken": {
+      "Value": ""
+    },
+    "SupportUrl": {
+      "Value": ""
+    },
+    "WorkflowObjectStore": {
+      "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
     }
   },
   "Resources": {
