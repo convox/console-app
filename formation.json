@@ -16,12 +16,12 @@
     "DynamoDBSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
     },
-    "IntegrationsAccessKeyId": {
+    "IntegrationAwsAccessKeyId": {
       "Value": {
         "Ref": "ConsolePrivateIntegrationsAccess"
       }
     },
-    "IntegrationsSecretAccessKey": {
+    "IntegrationAwsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
     },
     "AuditLogObjectStore": {
