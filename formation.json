@@ -23,10 +23,10 @@
     "Development": {
       "Value": "false"
     },
-    "IntegrationsAccessKeyId": {
+    "IntegrationAwsAccessKeyId": {
       "Value": { "Ref": "ConsolePrivateIntegrationsAccess" }
     },
-    "IntegrationsSecretAccessKey": {
+    "IntegrationAwsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
     },
     "MailgunApiKey": {
