@@ -34,6 +34,11 @@
         "Ref": "ConsolePrivateWorkflowBucket"
       }
     },
+    "BackupObjectStore": {
+      "Value": {
+        "Ref": "ConsolePrivateBackupBucket"
+      }
+    },
     "S3EncryptionKey": {
       "Value": {
         "Ref": "ConsolePrivateAuditLogKMSKey"
@@ -60,10 +65,10 @@
                   "dynamodb:GetItem",
                   "dynamodb:GetRecords",
                   "dynamodb:ListStreams",
-                  "dynamodb:ListTables",
                   "dynamodb:PutItem",
                   "dynamodb:Query",
-                  "dynamodb:UpdateItem"
+                  "dynamodb:UpdateItem",
+                  "dynamodb:Scan"
                 ],
                 "Resource": {
                   "Fn::Join": [
@@ -75,6 +80,12 @@
                     ]
                   ]
                 }
+              }, {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:ListTables",
+                ],
+                "Resource": "*"
               }, {
               "Effect" : "Allow",
               "Action" : "ecs:*",
@@ -114,6 +125,26 @@
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateAuditLogBucket"},
+                    "/*"
+                  ]
+                ]
+              ],
+              "Effect": "Allow"
+              }, {
+              "Action": "s3:*",
+              "Resource": [
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateBackupBucket"}
+                  ]
+                ],
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateBackupBucket"},
                     "/*"
                   ]
                 ]
@@ -545,6 +576,25 @@
         }
       }
     },
+    "ConsolePrivateBackupBucketPolicy": {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : { "Ref":"ConsolePrivateBackupBucket" },
+        "PolicyDocument" : {
+          "Statement":[{
+            "Action":["s3:PutObject"],
+            "Effect":"Deny",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateBackupBucket" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringNotEquals":{
+                "s3:x-amz-server-side-encryption":"aws:kms"
+              }
+            }
+          }]
+        }
+      }
+    },
     "ConsolePrivateAuditLogKMSKey": {
       "Type" : "AWS::KMS::Key",
       "Properties" : {
@@ -591,6 +641,9 @@
       "Type" : "AWS::S3::Bucket"
     },
     "ConsolePrivateWorkflowBucket":{
+      "Type" : "AWS::S3::Bucket"
+    },
+    "ConsolePrivateBackupBucket":{
       "Type" : "AWS::S3::Bucket"
     }
   }
