@@ -52,7 +52,7 @@
     "S3EncryptionKey": {
       "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
     },
-    "SegmentWriteToken": {
+    "SegmentWriteKey": {
       "Value": ""
     },
     "SessionKey": {
@@ -78,6 +78,9 @@
     },
     "SupportUrl": {
       "Value": ""
+    },
+    "TablePrefix": {
+      "Value": { "Ref": "TablePrefix" }
     },
     "WorkflowObjectStore": {
       "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
