@@ -568,7 +568,9 @@
               "kms:Get*",
               "kms:Delete*",
               "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion"
+              "kms:CancelKeyDeletion",
+              "kms:Decrypt",
+              "kms:DescribeKey"
             ],
             "Resource": "*"
           },{
