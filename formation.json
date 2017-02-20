@@ -8,36 +8,82 @@
     }
   },
   "Outputs": {
-    "DynamoDBAccessKeyId": {
-      "Value": {
-        "Ref": "ConsolePrivateDynamoDBAccess"
-      }
+    "AuditLogsObjectStore": {
+      "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
     },
-    "DynamoDBSecretAccessKey": {
+    "AwsRegion": {
+      "Value": { "Ref": "AWS::Region" }
+    },
+    "AwsAccessKeyId": {
+      "Value": { "Ref": "ConsolePrivateDynamoDBAccess" }
+    },
+    "AwsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
     },
-    "IntegrationsAccessKeyId": {
-      "Value": {
-        "Ref": "ConsolePrivateIntegrationsAccess"
-      }
+    "Development": {
+      "Value": "false"
     },
-    "IntegrationsSecretAccessKey": {
+    "IntegrationAwsAccessKeyId": {
+      "Value": { "Ref": "ConsolePrivateIntegrationsAccess" }
+    },
+    "IntegrationAwsSecretAccessKey": {
       "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
     },
-    "AuditLogObjectStore": {
-      "Value": {
-        "Ref": "ConsolePrivateAuditLogBucket"
-      }
+    "MailgunApiKey": {
+      "Value": ""
     },
-    "WorkflowObjectStore": {
+    "MailgunApiUrl": {
+      "Value": ""
+    },
+    "Private": {
+      "Value": "true"
+    },
+    "RackKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "RollbarToken": {
+      "Value": ""
+    },
+    "BackupObjectStore": {
       "Value": {
-        "Ref": "ConsolePrivateWorkflowBucket"
+        "Ref": "ConsolePrivateBackupBucket"
       }
     },
     "S3EncryptionKey": {
-      "Value": {
-        "Ref": "ConsolePrivateAuditLogKMSKey"
-      }
+      "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
+    },
+    "SegmentWriteKey": {
+      "Value": ""
+    },
+    "SessionKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "SnoopEncryptionKey": {
+      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+    },
+    "StripePublishableKey": {
+      "Value": ""
+    },
+    "StripeSecretKey": {
+      "Value": ""
+    },
+    "SupportEmail": {
+      "Value": ""
+    },
+    "SupportName": {
+      "Value": ""
+    },
+    "SupportToken": {
+      "Value": ""
+    },
+    "SupportUrl": {
+      "Value": ""
+    },
+    "TablePrefix": {
+      "Value": { "Ref": "TablePrefix" }
+    },
+    "WorkflowObjectStore": {
+      "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
     }
   },
   "Resources": {
@@ -60,10 +106,10 @@
                   "dynamodb:GetItem",
                   "dynamodb:GetRecords",
                   "dynamodb:ListStreams",
-                  "dynamodb:ListTables",
                   "dynamodb:PutItem",
                   "dynamodb:Query",
-                  "dynamodb:UpdateItem"
+                  "dynamodb:UpdateItem",
+                  "dynamodb:Scan"
                 ],
                 "Resource": {
                   "Fn::Join": [
@@ -75,6 +121,12 @@
                     ]
                   ]
                 }
+              }, {
+                "Effect": "Allow",
+                "Action": [
+                  "dynamodb:ListTables",
+                ],
+                "Resource": "*"
               }, {
               "Effect" : "Allow",
               "Action" : "ecs:*",
@@ -112,6 +164,26 @@
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateAuditLogBucket"},
+                    "/*"
+                  ]
+                ]
+              ],
+              "Effect": "Allow"
+              }, {
+              "Action": "s3:*",
+              "Resource": [
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateBackupBucket"}
+                  ]
+                ],
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateBackupBucket"},
                     "/*"
                   ]
                 ]
@@ -561,6 +633,25 @@
         }
       }
     },
+    "ConsolePrivateBackupBucketPolicy": {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : { "Ref":"ConsolePrivateBackupBucket" },
+        "PolicyDocument" : {
+          "Statement":[{
+            "Action":["s3:PutObject"],
+            "Effect":"Deny",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateBackupBucket" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringNotEquals":{
+                "s3:x-amz-server-side-encryption":"aws:kms"
+              }
+            }
+          }]
+        }
+      }
+    },
     "ConsolePrivateAuditLogKMSKey": {
       "Type" : "AWS::KMS::Key",
       "Properties" : {
@@ -609,6 +700,9 @@
       "Type" : "AWS::S3::Bucket"
     },
     "ConsolePrivateWorkflowBucket":{
+      "Type" : "AWS::S3::Bucket"
+    },
+    "ConsolePrivateBackupBucket":{
       "Type" : "AWS::S3::Bucket"
     }
   }
