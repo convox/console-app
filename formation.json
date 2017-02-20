@@ -122,9 +122,9 @@
                   ]
                 }
               }, {
-                "Effect": "Allow",
-                "Action": [
-                  "dynamodb:ListTables",
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:ListTables"
                 ],
                 "Resource": "*"
               }, {
@@ -133,13 +133,15 @@
               "Resource" : "*"
               }, {
               "Action": "s3:*",
-              "Fn::Join": [
-                "",
-                [
-                  "arn:aws:s3:::",
-                  {"Ref": "ConsolePrivateWorkflowBucket"}
+              "Resource": [{
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:aws:s3:::",
+                    {"Ref": "ConsolePrivateWorkflowBucket"}
+                  ]
                 ]
-              ],
+              }, {
               "Fn::Join": [
                 "",
                 [
@@ -147,18 +149,20 @@
                   {"Ref": "ConsolePrivateWorkflowBucket"},
                   "/*"
                 ]
+              ]
+              }
               ],
               "Effect": "Allow"
               }, {
               "Action": "s3:*",
-              "Resource": [
+              "Resource": [{
                 "Fn::Join": [
                   "",
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateAuditLogBucket"}
                   ]
-                ],
+                ]}, {
                 "Fn::Join": [
                   "",
                   [
@@ -167,18 +171,19 @@
                     "/*"
                   ]
                 ]
+                }
               ],
               "Effect": "Allow"
               }, {
               "Action": "s3:*",
               "Resource": [
-                "Fn::Join": [
+                {"Fn::Join": [
                   "",
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateBackupBucket"}
                   ]
-                ],
+                ]}, {
                 "Fn::Join": [
                   "",
                   [
@@ -187,6 +192,7 @@
                     "/*"
                   ]
                 ]
+                }
               ],
               "Effect": "Allow"
               }
@@ -218,8 +224,8 @@
                   "Action" : [
                     "sts:AssumeRole",
                     "iam:GetUser"
-                ],
-                "Resource" : "*"
+                  ],
+                  "Resource" : "*"
                 }
               ]
             }
@@ -238,7 +244,7 @@
     "ConsolePrivateManagementRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
-        "RoleName":
+        "RoleName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-management-role" ]]},
         "AssumeRolePolicyDocument": {
           "Version" : "2012-10-17",
           "Statement": [ {
@@ -250,7 +256,15 @@
           } ]
         },
         "Path": "/",
-        "Policies": []
+        "Policies": [{
+          "Effect" : "Allow",
+          "Action" : "s3:*",
+          "Resource" : "*"
+        }, {
+          "Effect" : "Allow",
+          "Action" : "dynamodb:*",
+          "Resource" : "*"
+        }]
       }
     },
     "ConsolePrivateUsersDynamoDBTable" : {
@@ -662,7 +676,7 @@
           "Statement":[{
             "Sid": "Allow administration of the key",
             "Effect": "Allow",
-            "Principal": { "AWS": { "Fn::Join": ["", ["arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"]] } },
+            "Principal": { "Ref": "ConsolePrivateManagementRole" },
             "Action": [
               "kms:Create*",
               "kms:Describe*",
