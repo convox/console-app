@@ -81,21 +81,19 @@
               "Resource" : "*"
               }, {
               "Action": "s3:*",
-              "Resource": [
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateWorkflowBucket"}
-                  ]
-                ],
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateWorkflowBucket"},
-                    "/*"
-                  ]
+              "Fn::Join": [
+                "",
+                [
+                  "arn:aws:s3:::",
+                  {"Ref": "ConsolePrivateWorkflowBucket"}
+                ]
+              ],
+              "Fn::Join": [
+                "",
+                [
+                  "arn:aws:s3:::",
+                  {"Ref": "ConsolePrivateWorkflowBucket"},
+                  "/*"
                 ]
               ],
               "Effect": "Allow"
