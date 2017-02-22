@@ -246,23 +246,22 @@
       "Properties": {
         "RoleName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-management-role" ]]},
         "AssumeRolePolicyDocument": {
-          "Version" : "2012-10-17",
           "Statement": [{
             "Effect": "Allow",
-            "Principal": {
-              "Service": [ "ec2.amazonaws.com" ]
-            }
+            "Principal": { "AWS": {"Ref": "AWS::AccountId" }},
+            "Action": ["sts:AssumeRole"]
           }]
         },
         "Path": "/",
         "Policies": [{
-          "Effect" : "Allow",
-          "Action" : "s3:*",
-          "Resource" : "*"
-        }, {
-          "Effect" : "Allow",
-          "Action" : "dynamodb:*",
-          "Resource" : "*"
+          "PolicyName": "ConsoleManagementS3Access",
+          "PolicyDocument": {
+            "Statement": [{
+              "Effect" : "Allow",
+              "Action" : ["s3:*", "dynamodb:*"],
+              "Resource" : "*"
+            }]
+          }
         }]
       }
     },
@@ -279,16 +278,16 @@
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "email-index",
+          "GlobalSecondaryIndexes" : [{
+            "IndexName" : "email-index",
+            "Projection": { "ProjectionType": "ALL" },
+            "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
+            "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          }, {
+          "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
+          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "api-key-hash-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "password-reset-token-index",
         "Projection": { "ProjectionType": "ALL" },
@@ -675,7 +674,7 @@
           "Statement":[{
             "Sid": "Allow administration of the key",
             "Effect": "Allow",
-            "Principal": { "Ref": "ConsolePrivateManagementRole" },
+            "Principal": { "AWS": { "Fn::Join": ["", ["arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"]] } },
             "Action": [
               "kms:Create*",
               "kms:Describe*",
@@ -697,6 +696,18 @@
           "Sid": "Allow use of the key",
           "Effect": "Allow",
           "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
+          "Action": [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey"
+          ],
+          "Resource": "*"
+          }, {
+          "Sid": "Allow use of the key",
+          "Effect": "Allow",
+          "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateManagementRole", "Arn"]} },
           "Action": [
             "kms:Encrypt",
             "kms:Decrypt",
