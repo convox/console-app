@@ -1,8 +1,8 @@
 web:
   image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:latest
   ports:
-    - 80:5000
-    - 443:443
+    - 80:3000
+    - 443:4000
   labels:
     - "convox.port.443.protocol=tls"
     - "convox.port.443.secure=true"
