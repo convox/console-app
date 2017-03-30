@@ -58,9 +58,6 @@
     "SessionKey": {
       "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
     },
-    "SnoopEncryptionKey": {
-      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
-    },
     "StripePublishableKey": {
       "Value": ""
     },
