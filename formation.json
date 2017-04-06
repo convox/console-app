@@ -236,6 +236,7 @@
     },
     "ConsolePrivateUsersDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-users" ]]},
         "AttributeDefinitions" : [
@@ -272,6 +273,7 @@
     },
     "ConsolePrivateOrganizationsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organizations" ]]},
         "AttributeDefinitions" : [
@@ -296,6 +298,7 @@
     },
     "ConsolePrivateOrganizationInvitesDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateOrganizationsDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organization-invites" ]]},
@@ -333,6 +336,7 @@
     },
     "ConsolePrivateRacksDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateOrganizationInvitesDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-racks" ]]},
@@ -358,6 +362,7 @@
     },
     "ConsolePrivateInstallsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateRacksDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-installs" ]]},
@@ -377,6 +382,7 @@
     },
     "ConsolePrivateIntegrationsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateInstallsDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-integrations" ]]},
@@ -402,6 +408,7 @@
     },
     "ConsolePrivateWebhooksDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-webhooks" ]]},
@@ -439,6 +446,7 @@
     },
     "ConsolePrivateAuditLogsDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-audit-logs" ]]},
@@ -462,6 +470,7 @@
     },
     "ConsolePrivateDeployKeysDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
+      "DeletionPolicy" : "Retain",
       "DependsOn" : "ConsolePrivateAuditLogsDynamoDBTable" ,
       "Properties" : {
         "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-deploy-keys" ]]},
