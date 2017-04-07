@@ -7,7 +7,7 @@ web:
     - "convox.port.443.protocol=tls"
     - "convox.port.443.secure=true"
     - "convox.port.443.proxy=true"
-    - "convox.cron.cleapupjobs=0 */6 * * ? clean_up_jobs"
+    - "convox.cron.cleanupjobs=0 */6 * * ? clean_up_jobs"
   env:
     ALLOW_SIGNUP=false
     TABLE_PREFIX=console-private
