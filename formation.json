@@ -119,9 +119,9 @@
                   ]
                 }
               }, {
-                "Effect": "Allow",
-                "Action": [
-                  "dynamodb:ListTables",
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:ListTables"
                 ],
                 "Resource": "*"
               }, {
@@ -130,34 +130,36 @@
               "Resource" : "*"
               }, {
               "Action": "s3:*",
-              "Resource": [
+              "Resource": [{
                 "Fn::Join": [
                   "",
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateWorkflowBucket"}
                   ]
-                ],
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateWorkflowBucket"},
-                    "/*"
-                  ]
                 ]
+              }, {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:aws:s3:::",
+                  {"Ref": "ConsolePrivateWorkflowBucket"},
+                  "/*"
+                ]
+              ]
+              }
               ],
               "Effect": "Allow"
               }, {
               "Action": "s3:*",
-              "Resource": [
+              "Resource": [{
                 "Fn::Join": [
                   "",
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateAuditLogBucket"}
                   ]
-                ],
+                ]}, {
                 "Fn::Join": [
                   "",
                   [
@@ -166,18 +168,19 @@
                     "/*"
                   ]
                 ]
+                }
               ],
               "Effect": "Allow"
               }, {
               "Action": "s3:*",
               "Resource": [
-                "Fn::Join": [
+                {"Fn::Join": [
                   "",
                   [
                     "arn:aws:s3:::",
                     {"Ref": "ConsolePrivateBackupBucket"}
                   ]
-                ],
+                ]}, {
                 "Fn::Join": [
                   "",
                   [
@@ -186,6 +189,7 @@
                     "/*"
                   ]
                 ]
+                }
               ],
               "Effect": "Allow"
               }
@@ -217,8 +221,8 @@
                   "Action" : [
                     "sts:AssumeRole",
                     "iam:GetUser"
-                ],
-                "Resource" : "*"
+                  ],
+                  "Resource" : "*"
                 }
               ]
             }
@@ -234,6 +238,30 @@
         "UserName": { "Ref": "ConsolePrivateIntegrationsUser" }
       }
     },
+    "ConsolePrivateManagementRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-management-role" ]]},
+        "AssumeRolePolicyDocument": {
+          "Statement": [{
+            "Effect": "Allow",
+            "Principal": { "AWS": {"Ref": "AWS::AccountId" }},
+            "Action": ["sts:AssumeRole"]
+          }]
+        },
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "ConsoleManagementS3Access",
+          "PolicyDocument": {
+            "Statement": [{
+              "Effect" : "Allow",
+              "Action" : ["s3:*", "dynamodb:*"],
+              "Resource" : "*"
+            }]
+          }
+        }]
+      }
+    },
     "ConsolePrivateUsersDynamoDBTable" : {
       "Type" : "AWS::DynamoDB::Table",
       "Properties" : {
@@ -247,16 +275,16 @@
         ],
         "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "email-index",
+          "GlobalSecondaryIndexes" : [{
+            "IndexName" : "email-index",
+            "Projection": { "ProjectionType": "ALL" },
+            "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
+            "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
+          }, {
+          "IndexName" : "api-key-hash-index",
           "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
+          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
           "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "api-key-hash-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
         }, {
         "IndexName" : "password-reset-token-index",
         "Projection": { "ProjectionType": "ALL" },
@@ -656,13 +684,27 @@
               "kms:Get*",
               "kms:Delete*",
               "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion"
+              "kms:CancelKeyDeletion",
+              "kms:Decrypt",
+              "kms:DescribeKey"
             ],
             "Resource": "*"
           },{
           "Sid": "Allow use of the key",
           "Effect": "Allow",
           "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
+          "Action": [
+            "kms:Encrypt",
+            "kms:Decrypt",
+            "kms:ReEncrypt*",
+            "kms:GenerateDataKey*",
+            "kms:DescribeKey"
+          ],
+          "Resource": "*"
+          }, {
+          "Sid": "Allow use of the key",
+          "Effect": "Allow",
+          "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateManagementRole", "Arn"]} },
           "Action": [
             "kms:Encrypt",
             "kms:Decrypt",
