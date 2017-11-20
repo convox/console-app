@@ -260,7 +260,7 @@
           { "AttributeName": "timestamp", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "20" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "rack-index",
@@ -301,7 +301,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -315,7 +315,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -353,7 +353,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -367,7 +367,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -384,19 +384,19 @@
           { "AttributeName": "organization-id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "20" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "key-hash-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "key-hash", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "20" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "20" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -431,7 +431,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -445,7 +445,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -483,7 +483,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexKeyHashScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -497,7 +497,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexKeyHashScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -535,7 +535,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -549,7 +549,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -564,7 +564,7 @@
           { "AttributeName": "id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
       }
     },
     "ConsolePrivateInstallsScalableTargetRead": {
@@ -597,7 +597,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateInstallsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -611,7 +611,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateInstallsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -627,13 +627,13 @@
           { "AttributeName": "organization-id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -668,7 +668,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -682,7 +682,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -720,7 +720,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -734,7 +734,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -752,31 +752,31 @@
           { "AttributeName": "created", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "10" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "created-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "created", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "job-created-org-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" }, { "AttributeName": "created", "KeyType": "RANGE" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "workflow-id-created-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "workflow-id", "KeyType": "HASH" }, { "AttributeName": "created", "KeyType": "RANGE" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "100", "WriteCapacityUnits": "10" }
           }
         ]
       }
@@ -811,7 +811,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -825,7 +825,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -836,7 +836,7 @@
       "DependsOn": "ConsolePrivateJobsScalableTargetRead",
       "Properties": {
         "MaxCapacity": 500,
-        "MinCapacity": 20,
+        "MinCapacity": 100,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/created-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -848,7 +848,7 @@
       "DependsOn": "ConsolePrivateJobsScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/created-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -863,7 +863,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexCreatedScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -877,7 +877,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexCreatedScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -888,7 +888,7 @@
       "DependsOn": "ConsolePrivateJobsIndexCreatedScalableTargetRead",
       "Properties": {
         "MaxCapacity": 500,
-        "MinCapacity": 20,
+        "MinCapacity": 100,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/job-created-org-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -900,7 +900,7 @@
       "DependsOn": "ConsolePrivateJobsIndexCreatedScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/job-created-org-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -915,7 +915,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -929,7 +929,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -940,7 +940,7 @@
       "DependsOn": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetRead",
       "Properties": {
         "MaxCapacity": 500,
-        "MinCapacity": 20,
+        "MinCapacity": 100,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/organization-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -952,7 +952,7 @@
       "DependsOn": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/organization-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -967,7 +967,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -981,7 +981,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -992,7 +992,7 @@
       "DependsOn": "ConsolePrivateJobsIndexOrganizationIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 500,
-        "MinCapacity": 20,
+        "MinCapacity": 100,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/workflow-id-created-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -1004,7 +1004,7 @@
       "DependsOn": "ConsolePrivateJobsIndexOrganizationIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/workflow-id-created-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -1019,7 +1019,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1033,7 +1033,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1049,13 +1049,13 @@
           { "AttributeName": "name", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "name-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "name", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -1090,7 +1090,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1104,7 +1104,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1142,7 +1142,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsIndexNameScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1156,7 +1156,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsIndexNameScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1174,25 +1174,25 @@
           { "AttributeName": "token", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "email-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "email", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "token-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "token", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -1227,7 +1227,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1241,7 +1241,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1279,7 +1279,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1293,7 +1293,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1331,7 +1331,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1345,7 +1345,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1383,7 +1383,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1397,7 +1397,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1413,13 +1413,13 @@
           { "AttributeName": "organization-id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -1454,7 +1454,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateRacksScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1468,7 +1468,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateRacksScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1506,7 +1506,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateRacksIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1520,7 +1520,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateRacksIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1539,31 +1539,31 @@
           { "AttributeName": "github-id", "AttributeType": "N" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "api-key-hash-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "api-key-hash", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "email-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "email", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "github-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "github-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" }
           },
           {
             "IndexName": "password-reset-token-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "password-reset-token", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "10" }
           }
         ]
       }
@@ -1572,7 +1572,7 @@
       "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 20,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
@@ -1583,7 +1583,7 @@
       "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
@@ -1598,7 +1598,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1612,7 +1612,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1623,7 +1623,7 @@
       "DependsOn": "ConsolePrivateUsersScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 20,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/api-key-hash-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -1635,7 +1635,7 @@
       "DependsOn": "ConsolePrivateUsersScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/api-key-hash-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -1650,7 +1650,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexApiKeyHashScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1664,7 +1664,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexApiKeyHashScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1675,7 +1675,7 @@
       "DependsOn": "ConsolePrivateUsersIndexApiKeyHashScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 20,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/email-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -1687,7 +1687,7 @@
       "DependsOn": "ConsolePrivateUsersIndexApiKeyHashScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/email-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -1702,7 +1702,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexEmailScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1716,7 +1716,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexEmailScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1727,7 +1727,7 @@
       "DependsOn": "ConsolePrivateUsersIndexEmailScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 20,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/github-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -1739,7 +1739,7 @@
       "DependsOn": "ConsolePrivateUsersIndexEmailScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/github-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -1754,7 +1754,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexGithubIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1768,7 +1768,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexGithubIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1779,7 +1779,7 @@
       "DependsOn": "ConsolePrivateUsersIndexGithubIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 20,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/password-reset-token-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -1791,7 +1791,7 @@
       "DependsOn": "ConsolePrivateUsersIndexGithubIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/password-reset-token-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
@@ -1806,7 +1806,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1820,7 +1820,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1838,25 +1838,25 @@
           { "AttributeName": "app-id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "app-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "app-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "integration-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "integration-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "rack-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "rack-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "1", "WriteCapacityUnits": "1" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -1891,7 +1891,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1905,7 +1905,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1943,7 +1943,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexAppIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -1957,7 +1957,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexAppIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -1995,7 +1995,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2009,7 +2009,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2047,7 +2047,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexRackIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2061,7 +2061,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexRackIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2080,31 +2080,31 @@
           { "AttributeName": "trigger-id", "AttributeType": "S" }
         ],
         "KeySchema": [ { "AttributeName": "id", "KeyType": "HASH" } ],
-        "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": "10", "WriteCapacityUnits": "5" },
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "integration-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "integration-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "10", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "name-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "name", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "10", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "organization-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "organization-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "10", "WriteCapacityUnits": "5" }
           },
           {
             "IndexName": "trigger-id-index",
             "Projection": { "ProjectionType": "ALL" },
             "KeySchema": [ { "AttributeName": "trigger-id", "KeyType": "HASH" } ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "5" }
+            "ProvisionedThroughput": { "ReadCapacityUnits": "10", "WriteCapacityUnits": "5" }
           }
         ]
       }
@@ -2113,7 +2113,7 @@
       "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
@@ -2139,7 +2139,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2153,7 +2153,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2164,7 +2164,7 @@
       "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/integration-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -2191,7 +2191,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2205,7 +2205,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2216,7 +2216,7 @@
       "DependsOn": "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/name-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -2243,7 +2243,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexNameScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2257,7 +2257,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexNameScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2268,7 +2268,7 @@
       "DependsOn": "ConsolePrivateWorkflowsIndexNameScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/organization-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -2295,7 +2295,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2309,7 +2309,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
@@ -2320,7 +2320,7 @@
       "DependsOn": "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetRead",
       "Properties": {
         "MaxCapacity": 200,
-        "MinCapacity": 5,
+        "MinCapacity": 10,
         "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/trigger-id-index" },
         "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
         "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
@@ -2347,7 +2347,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetRead" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
         }
@@ -2361,7 +2361,7 @@
         "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetWrite" },
         "TargetTrackingScalingPolicyConfiguration": {
           "TargetValue": 70.0,
-          "ScaleInCooldown": 5,
+          "ScaleInCooldown": 60,
           "ScaleOutCooldown": 1200,
           "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
         }
