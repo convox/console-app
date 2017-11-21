@@ -9,8 +9,10 @@ web:
     - "convox.port.443.secure=true"
     - "convox.port.443.proxy=true"
     - "convox.cron.cleanupjobs=0 */6 * * ? clean_up_jobs"
+  mem_limit: 512MB
   env:
     ALLOW_SIGNUP=false
     TABLE_PREFIX=console-private
 workers:
   image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:latest
+  mem_limit: 512MB
