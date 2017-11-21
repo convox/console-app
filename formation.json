@@ -373,11 +373,11 @@
             "TableName": { "Fn::Sub": "${TablePrefix}-deploy-keys" },
             "AttributeDefinitions": [
               
-                { "AttributeName": "organization-id", "AttributeType": "S" },
+                { "AttributeName": "id", "AttributeType": "S" },
               
                 { "AttributeName": "key-hash", "AttributeType": "S" },
               
-                { "AttributeName": "id", "AttributeType": "S" },
+                { "AttributeName": "organization-id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -390,10 +390,10 @@
             "GlobalSecondaryIndexes": [
               
                 {
-                  "IndexName": "organization-id-index",
+                  "IndexName": "key-hash-index",
                   "Projection": { "ProjectionType": "ALL" },
                   "KeySchema": [
-                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    { "AttributeName": "key-hash", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
                   ],
@@ -401,10 +401,10 @@
                 },
               
                 {
-                  "IndexName": "key-hash-index",
+                  "IndexName": "organization-id-index",
                   "Projection": { "ProjectionType": "ALL" },
                   "KeySchema": [
-                    { "AttributeName": "key-hash", "KeyType": "HASH" },
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
                   ],
@@ -489,11 +489,11 @@
               
                 { "AttributeName": "created", "AttributeType": "S" },
               
+                { "AttributeName": "id", "AttributeType": "S" },
+              
                 { "AttributeName": "organization-id", "AttributeType": "S" },
               
                 { "AttributeName": "workflow-id", "AttributeType": "S" },
-              
-                { "AttributeName": "id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -562,9 +562,9 @@
             "TableName": { "Fn::Sub": "${TablePrefix}-organization-invites" },
             "AttributeDefinitions": [
               
-                { "AttributeName": "id", "AttributeType": "S" },
-              
                 { "AttributeName": "email", "AttributeType": "S" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
               
                 { "AttributeName": "organization-id", "AttributeType": "S" },
               
@@ -619,9 +619,47 @@
         },
         
       
-        "ConsolePrivateOrganizationsDynamoDBTable": {
+        "ConsolePrivateOrganizationMembershipsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
           "DependsOn": "ConsolePrivateOrganizationInvitesDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organization-memberships" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+                { "AttributeName": "user-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "organization-id", "KeyType": "HASH" },
+              { "AttributeName": "user-id", "KeyType": "RANGE" },
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "user-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user-id", "KeyType": "HASH" },
+                    { "AttributeName": "organization-id", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateOrganizationsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationMembershipsDynamoDBTable",
           "Properties": {
             "TableName": { "Fn::Sub": "${TablePrefix}-organizations" },
             "AttributeDefinitions": [
@@ -664,9 +702,9 @@
             "TableName": { "Fn::Sub": "${TablePrefix}-racks" },
             "AttributeDefinitions": [
               
-                { "AttributeName": "organization-id", "AttributeType": "S" },
-              
                 { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -708,9 +746,9 @@
               
                 { "AttributeName": "github-id", "AttributeType": "N" },
               
-                { "AttributeName": "password-reset-token", "AttributeType": "S" },
-              
                 { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "password-reset-token", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -781,11 +819,11 @@
               
                 { "AttributeName": "app-id", "AttributeType": "S" },
               
+                { "AttributeName": "id", "AttributeType": "S" },
+              
                 { "AttributeName": "integration-id", "AttributeType": "S" },
               
                 { "AttributeName": "rack-id", "AttributeType": "S" },
-              
-                { "AttributeName": "id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -843,6 +881,8 @@
             "TableName": { "Fn::Sub": "${TablePrefix}-workflows" },
             "AttributeDefinitions": [
               
+                { "AttributeName": "id", "AttributeType": "S" },
+              
                 { "AttributeName": "integration-id", "AttributeType": "S" },
               
                 { "AttributeName": "name", "AttributeType": "S" },
@@ -850,8 +890,6 @@
                 { "AttributeName": "organization-id", "AttributeType": "S" },
               
                 { "AttributeName": "trigger-id", "AttributeType": "S" },
-              
-                { "AttributeName": "id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],

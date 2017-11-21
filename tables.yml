@@ -38,6 +38,11 @@ organizations:
   capacity: 5,2
   indexes:
     name: name
+organization-memberships:
+  key: organization-id,user-id
+  capacity: 5,2
+  indexes:
+    user-id: user-id,organization-id
 racks:
   key: id
   capacity: 5,2

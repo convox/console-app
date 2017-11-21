@@ -111,6 +111,8 @@ func run() error {
 			v.Indexes = append(v.Indexes, i)
 		}
 
+		sort.Slice(v.Indexes, func(i, j int) bool { return v.Indexes[i].Name < v.Indexes[j].Name })
+
 		ts = append(ts, v)
 	}
 
@@ -160,6 +162,8 @@ func (t *Table) Attributes() []string {
 			as = append(as, k)
 		}
 	}
+
+	sort.Strings(as)
 
 	return as
 }
