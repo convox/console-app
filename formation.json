@@ -79,6 +79,9 @@
     "TablePrefix": {
       "Value": { "Ref": "TablePrefix" }
     },
+    "WorkerQueue": {
+      "Value": { "Ref": "ConsolePrivateWorkerQueue" }
+    },
     "WorkflowObjectStore": {
       "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
     }
@@ -621,6 +624,48 @@
         ],
         "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
         }]
+      }
+    },
+    "ConsolePrivateWorkerQueue": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "FifoQueue": "true"
+      }
+    },
+    "ConsolePrivateWorkerQueuePolicy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "Queues": [ { "Ref": "ConsolePrivateWorkerQueue" } ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
+              "Action": [ "sqs:DeleteMessage", "sqs:SendMessage", "sqs:ReceiveMessage" ],
+              "Resource": { "Fn::GetAtt": [ "ConsolePrivateWorkerQueue", "Arn" ] }
+            }
+          ]
+        }
+      }
+    },
+    "ConsolePrivateAuditLogBucketPolicy": {
+      "Type" : "AWS::S3::BucketPolicy",
+      "Properties" : {
+        "Bucket" : { "Ref":"ConsolePrivateAuditLogBucket" },
+        "PolicyDocument" : {
+          "Statement":[{
+            "Action":["s3:PutObject"],
+            "Effect":"Deny",
+            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateAuditLogBucket" } , "/*" ]]},
+            "Principal":"*",
+            "Condition":{
+              "StringNotEquals":{
+                "s3:x-amz-server-side-encryption":"aws:kms"
+              }
+            }
+          }]
+        }
       }
     },
     "ConsolePrivateBackupBucketPolicy": {
