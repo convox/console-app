@@ -7,6 +7,25 @@
       "Type": "String"
     }
   },
+  "Conditions": {
+    "UseFifoQueue": { "Fn::Equals": [ { "Fn::FindInMap": [ "RegionConfig", { "Ref": "AWS::Region" }, "FifoQueue" ] }, "Yes" ] }
+  },
+  "Mappings": {
+    "RegionConfig": {
+      "ap-northeast-1": { "FifoQueue": "No" },
+      "ap-northeast-2": { "FifoQueue": "No" },
+      "ap-southeast-1": { "FifoQueue": "No" },
+      "ap-southeast-2": { "FifoQueue": "No" },
+      "ca-central-1":   { "FifoQueue": "No" },
+      "eu-central-1":   { "FifoQueue": "No" },
+      "eu-west-1":      { "FifoQueue": "Yes" },
+      "eu-west-2":      { "FifoQueue": "No" },
+      "us-east-1":      { "FifoQueue": "Yes" },
+      "us-east-2":      { "FifoQueue": "Yes" },
+      "us-west-1":      { "FifoQueue": "No" },
+      "us-west-2":      { "FifoQueue": "Yes" }
+    }
+  },
   "Outputs": {
     "AuditLogsObjectStore": {
       "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
@@ -629,7 +648,7 @@
     "ConsolePrivateWorkerQueue": {
       "Type": "AWS::SQS::Queue",
       "Properties": {
-        "FifoQueue": "true"
+        "FifoQueue": { "Fn::If": [ "UseFifoQueue", "true", { "Ref": "AWS::NoValue" } ] }
       }
     },
     "ConsolePrivateWorkerQueuePolicy": {
