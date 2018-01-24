@@ -1,775 +1,987 @@
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Parameters": {
-    "TablePrefix": {
-      "Default": "console-private",
-      "Description": "",
-      "Type": "String"
-    }
-  },
-  "Conditions": {
-    "UseFifoQueue": { "Fn::Equals": [ { "Fn::FindInMap": [ "RegionConfig", { "Ref": "AWS::Region" }, "FifoQueue" ] }, "Yes" ] }
-  },
-  "Mappings": {
-    "RegionConfig": {
-      "ap-northeast-1": { "FifoQueue": "No" },
-      "ap-northeast-2": { "FifoQueue": "No" },
-      "ap-southeast-1": { "FifoQueue": "No" },
-      "ap-southeast-2": { "FifoQueue": "No" },
-      "ca-central-1":   { "FifoQueue": "No" },
-      "eu-central-1":   { "FifoQueue": "No" },
-      "eu-west-1":      { "FifoQueue": "Yes" },
-      "eu-west-2":      { "FifoQueue": "No" },
-      "us-east-1":      { "FifoQueue": "Yes" },
-      "us-east-2":      { "FifoQueue": "Yes" },
-      "us-west-1":      { "FifoQueue": "No" },
-      "us-west-2":      { "FifoQueue": "Yes" }
-    }
-  },
-  "Outputs": {
-    "AuditLogsObjectStore": {
-      "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
-    },
-    "AwsRegion": {
-      "Value": { "Ref": "AWS::Region" }
-    },
-    "AwsAccessKeyId": {
-      "Value": { "Ref": "ConsolePrivateDynamoDBAccess" }
-    },
-    "AwsSecretAccessKey": {
-      "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
-    },
-    "Development": {
-      "Value": "false"
-    },
-    "IntegrationAwsAccessKeyId": {
-      "Value": { "Ref": "ConsolePrivateIntegrationsAccess" }
-    },
-    "IntegrationAwsSecretAccessKey": {
-      "Value": { "Fn::GetAtt": [ "ConsolePrivateIntegrationsAccess", "SecretAccessKey" ] }
-    },
-    "MailgunApiKey": {
-      "Value": ""
-    },
-    "MailgunApiUrl": {
-      "Value": ""
-    },
-    "Private": {
-      "Value": "true"
-    },
-    "RackKey": {
-      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
-    },
-    "RollbarToken": {
-      "Value": ""
-    },
-    "BackupObjectStore": {
-      "Value": {
-        "Ref": "ConsolePrivateBackupBucket"
+
+  {
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+      "TablePrefix": {
+        "Type": "String",
+        "Default": "console-private"
       }
     },
-    "S3EncryptionKey": {
-      "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
+    "Outputs": {
+      "AuditLogsObjectStore": {
+        "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
+      },
+      "AwsRegion": {
+        "Value": { "Ref": "AWS::Region" }
+      },
+      "AwsAccessKeyId": {
+        "Value": { "Ref": "ConsolePrivateDynamoDBAccess" }
+      },
+      "AwsSecretAccessKey": {
+        "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
+      },
+      "BackupObjectStore": {
+        "Value": {
+          "Ref": "ConsolePrivateBackupBucket"
+        }
+      },
+      "Development": {
+        "Value": "false"
+      },
+      "Private": {
+        "Value": "true"
+      },
+      "RackKey": {
+        "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+      },
+      "S3EncryptionKey": {
+        "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
+      },
+      "SessionKey": {
+        "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+      },
+      "TablePrefix": {
+        "Value": { "Ref": "TablePrefix" }
+      },
+      "WorkerQueue": {
+        "Value": { "Ref": "ConsolePrivateWorkerQueue" }
+      },
+      "WorkflowObjectStore": {
+        "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
+      }
     },
-    "SegmentWriteKey": {
-      "Value": ""
-    },
-    "SessionKey": {
-      "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
-    },
-    "StripePublishableKey": {
-      "Value": ""
-    },
-    "StripeSecretKey": {
-      "Value": ""
-    },
-    "SupportEmail": {
-      "Value": ""
-    },
-    "SupportName": {
-      "Value": ""
-    },
-    "SupportToken": {
-      "Value": ""
-    },
-    "SupportUrl": {
-      "Value": ""
-    },
-    "TablePrefix": {
-      "Value": { "Ref": "TablePrefix" }
-    },
-    "WorkerQueue": {
-      "Value": { "Ref": "ConsolePrivateWorkerQueue" }
-    },
-    "WorkflowObjectStore": {
-      "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
-    }
-  },
-  "Resources": {
-    "ConsolePrivateDynamoDBUser": {
-      "Type": "AWS::IAM::User",
-      "Properties": {
-        "Policies": [
-          {
-            "PolicyName": "ConsolePrivateDynamoDBFullAccess",
-            "PolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [{
-                "Effect": "Allow",
-                "Action": [
-                  "dynamodb:BatchGetItem",
-                  "dynamodb:BatchWriteItem",
-                  "dynamodb:DeleteItem",
-                  "dynamodb:DescribeStream",
-                  "dynamodb:DescribeTable",
-                  "dynamodb:GetItem",
-                  "dynamodb:GetRecords",
-                  "dynamodb:ListStreams",
-                  "dynamodb:PutItem",
-                  "dynamodb:Query",
-                  "dynamodb:UpdateItem",
-                  "dynamodb:Scan"
-                ],
-                "Resource": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "arn:aws:dynamodb:*:*:table/",
-                      {"Ref": "TablePrefix"},
-                      "-*"
+    "Resources": {
+      "ConsolePrivateDynamoDBUser": {
+        "Type": "AWS::IAM::User",
+        "Properties": {
+          "Policies": [
+            {
+              "PolicyName": "ConsoleIAMAccess",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "dynamodb:BatchGetItem",
+                      "dynamodb:BatchWriteItem",
+                      "dynamodb:DeleteItem",
+                      "dynamodb:DescribeStream",
+                      "dynamodb:DescribeTable",
+                      "dynamodb:GetItem",
+                      "dynamodb:GetRecords",
+                      "dynamodb:ListStreams",
+                      "dynamodb:PutItem",
+                      "dynamodb:Query",
+                      "dynamodb:UpdateItem",
+                      "dynamodb:Scan"
+                    ],
+                    "Resource": { "Fn::Sub": "arn:aws:dynamodb:*:*:table/${TablePrefix}-*" }
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "dynamodb:ListTables"
+                    ],
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "ecs:*",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "s3:*",
+                    "Resource": [
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateAuditLogBucket}" },
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateAuditLogBucket}/*" },
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateBackupBucket}" },
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateBackupBucket}/*" },
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateWorkflowBucket}" },
+                      { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateWorkflowBucket}/*" }
                     ]
-                  ]
-                }
-              }, {
-              "Effect": "Allow",
-              "Action": [
-                "dynamodb:ListTables"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": [ "sts:AssumeRole", "iam:GetUser" ],
+                    "Resource": "*"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "ConsolePrivateDynamoDBAccess": {
+        "Type": "AWS::IAM::AccessKey",
+        "Properties": {
+          "Serial": "1",
+          "Status": "Active",
+          "UserName": { "Ref": "ConsolePrivateDynamoDBUser" }
+        }
+      },
+      "ConsolePrivateWorkerQueue": {
+        "Type": "AWS::SQS::Queue",
+        "Properties": {
+          "FifoQueue": "true"
+        }
+      },
+      "ConsolePrivateWorkerQueuePolicy": {
+        "Type": "AWS::SQS::QueuePolicy",
+        "Properties": {
+          "Queues": [ { "Ref": "ConsolePrivateWorkerQueue" } ],
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBUser", "Arn" ]} },
+                "Action": [ "sqs:DeleteMessage", "sqs:SendMessage", "sqs:ReceiveMessage" ],
+                "Resource": { "Fn::GetAtt": [ "ConsolePrivateWorkerQueue", "Arn" ] }
+              }
+            ]
+          }
+        }
+      },
+      "ConsolePrivateAuditLogKMSKey": {
+        "Type": "AWS::KMS::Key",
+        "Properties": {
+          "Description": { "Fn::Sub": "${TablePrefix} encryption key" },
+          "Enabled": true,
+          "EnableKeyRotation": true,
+          "KeyPolicy": {
+            "Statement": [
+              {
+                "Sid": "key administration",
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:root" } },
+                "Action": [ "kms:*" ],
+                "Resource": "*"
+              },
+              {
+                "Sid": "key usage",
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBUser", "Arn" ] } },
+                "Action": [
+                  "kms:Encrypt",
+                  "kms:Decrypt",
+                  "kms:ReEncrypt*",
+                  "kms:GenerateDataKey*",
+                  "kms:DescribeKey"
                 ],
                 "Resource": "*"
-              }, {
-              "Effect" : "Allow",
-              "Action" : "ecs:*",
-              "Resource" : "*"
-              }, {
-              "Action": "s3:*",
-              "Resource": [{
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateWorkflowBucket"}
-                  ]
-                ]
-              }, {
-              "Fn::Join": [
-                "",
-                [
-                  "arn:aws:s3:::",
-                  {"Ref": "ConsolePrivateWorkflowBucket"},
-                  "/*"
-                ]
-              ]
               }
-              ],
-              "Effect": "Allow"
-              }, {
-              "Action": "s3:*",
-              "Resource": [{
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateAuditLogBucket"}
-                  ]
-                ]}, {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateAuditLogBucket"},
-                    "/*"
-                  ]
-                ]
-                }
-              ],
-              "Effect": "Allow"
-              }, {
-              "Action": "s3:*",
-              "Resource": [
-                {"Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateBackupBucket"}
-                  ]
-                ]}, {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    {"Ref": "ConsolePrivateBackupBucket"},
-                    "/*"
-                  ]
-                ]
-                }
-              ],
-              "Effect": "Allow"
-              }
-              ]
-            }
+            ]
           }
-        ]
-      }
-    },
-    "ConsolePrivateDynamoDBAccess": {
-      "Type": "AWS::IAM::AccessKey",
-      "Properties": {
-        "Serial": "1",
-        "Status": "Active",
-        "UserName": { "Ref": "ConsolePrivateDynamoDBUser" }
-      }
-    },
-    "ConsolePrivateIntegrationsUser": {
-      "Type": "AWS::IAM::User",
-      "Properties": {
-        "Policies": [
-          {
-            "PolicyName": "ConsolePrivateIntegrationsAccess",
-            "PolicyDocument": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Effect" : "Allow",
-                  "Action" : [
-                    "sts:AssumeRole",
-                    "iam:GetUser"
-                  ],
-                  "Resource" : "*"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    "ConsolePrivateIntegrationsAccess": {
-      "Type": "AWS::IAM::AccessKey",
-      "Properties": {
-        "Serial": "1",
-        "Status": "Active",
-        "UserName": { "Ref": "ConsolePrivateIntegrationsUser" }
-      }
-    },
-    "ConsolePrivateManagementRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "RoleName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-management-role" ]]},
-        "AssumeRolePolicyDocument": {
-          "Statement": [{
-            "Effect": "Allow",
-            "Principal": { "AWS": {"Ref": "AWS::AccountId" }},
-            "Action": ["sts:AssumeRole"]
-          }]
-        },
-        "Path": "/",
-        "Policies": [{
-          "PolicyName": "ConsoleManagementS3Access",
+        }
+      },
+      "ConsolePrivateAuditLogBucket": {
+        "Type": "AWS::S3::Bucket"
+      },
+      "ConsolePrivateAuditLogBucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+          "Bucket": { "Ref": "ConsolePrivateAuditLogBucket" },
           "PolicyDocument": {
-            "Statement": [{
-              "Effect" : "Allow",
-              "Action" : ["s3:*", "dynamodb:*"],
-              "Resource" : "*"
-            }]
+            "Statement": [
+              {
+                "Action": [ "s3:PutObject" ],
+                "Effect": "Deny",
+                "Resource": { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateAuditLogBucket}/*" },
+                "Principal": "*",
+                "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+              }
+            ]
           }
-        }]
-      }
-    },
-    "ConsolePrivateUsersDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-users" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "email", "AttributeType" : "S" },
-          { "AttributeName" : "api-key-hash", "AttributeType" : "S" },
-          { "AttributeName" : "password-reset-token", "AttributeType" : "S" },
-          { "AttributeName" : "github-id", "AttributeType" : "N" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-          "GlobalSecondaryIndexes" : [{
-            "IndexName" : "email-index",
-            "Projection": { "ProjectionType": "ALL" },
-            "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
-            "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-          }, {
-          "IndexName" : "api-key-hash-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "api-key-hash", "KeyType" : "HASH" }],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "password-reset-token-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "password-reset-token", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "github-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "github-id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateOrganizationsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organizations" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "stripe-id", "AttributeType" : "S" },
-          { "AttributeName" : "name", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "name-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "name", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "stripe-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "stripe-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateOrganizationInvitesDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateOrganizationsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-organization-invites" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "email", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" },
-          { "AttributeName" : "inviter-id", "AttributeType" : "S" },
-          { "AttributeName" : "token", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "email-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "email", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "organization-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "inviter-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "inviter-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "token-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "token", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateRacksDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateOrganizationInvitesDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-racks" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" },
-          { "AttributeName" : "creator", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "creator-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "creator", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "organization-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateInstallsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateRacksDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-installs" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "user-id", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "user-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "user-id", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateIntegrationsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateInstallsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-integrations" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "provider", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "provider-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "provider", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "organization-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "organization-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateWebhooksDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-webhooks" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "integration-id", "AttributeType" : "S" },
-          { "AttributeName" : "remote-id", "AttributeType" : "N" },
-          { "AttributeName" : "rack-id", "AttributeType" : "S" },
-          { "AttributeName" : "app-id", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "integration-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [{ "AttributeName" : "integration-id", "KeyType" : "HASH"}],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "remote-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "remote-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "app-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "app-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }, {
-        "IndexName" : "rack-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [{ "AttributeName" : "rack-id", "KeyType" : "HASH"}],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "1", "WriteCapacityUnits" : "1" }
-        }]
-      }
-    },
-    "ConsolePrivateAuditLogsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateIntegrationsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-audit-logs" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "rack", "AttributeType" : "S" },
-          { "AttributeName" : "timestamp", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "rack-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "rack", "KeyType": "HASH" },
-            { "AttributeName": "timestamp", "KeyType": "RANGE" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
-        }]
-      }
-    },
-    "ConsolePrivateDeployKeysDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateAuditLogsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-deploy-keys" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "key-hash", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "key-hash-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "key-hash", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
-        }, {
-        "IndexName" : "organization-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "organization-id", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "100", "WriteCapacityUnits" : "20" }
-        }]
-      }
-    },
-    "ConsolePrivateJobsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateDeployKeysDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-jobs" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" },
-          { "AttributeName" : "workflow-id", "AttributeType" : "S" },
-          { "AttributeName": "created", "AttributeType": "S"}
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "organization-id-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "organization-id", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "created-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "created", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "job-created-org-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "organization-id", "KeyType": "HASH" },
-          { "AttributeName": "created", "KeyType": "RANGE" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "workflow-id-created-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "workflow-id", "KeyType": "HASH" },
-          { "AttributeName": "created", "KeyType": "RANGE" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "workflow-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "workflow-id", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }]
-      }
-    },
-    "ConsolePrivateWorkflowsDynamoDBTable" : {
-      "Type" : "AWS::DynamoDB::Table",
-      "DependsOn" : "ConsolePrivateJobsDynamoDBTable" ,
-      "Properties" : {
-        "TableName" : {"Fn::Join" : ["", [{"Ref": "TablePrefix"}, "-workflows" ]]},
-        "AttributeDefinitions" : [
-          { "AttributeName" : "id", "AttributeType" : "S" },
-          { "AttributeName" : "name", "AttributeType" : "S" },
-          { "AttributeName" : "organization-id", "AttributeType" : "S" },
-          { "AttributeName" : "integration-id", "AttributeType" : "S" },
-          { "AttributeName" : "trigger-id", "AttributeType" : "S" },
-          { "AttributeName" : "trigger-kind", "AttributeType" : "S" }
-        ],
-        "KeySchema" : [{ "AttributeName" : "id", "KeyType" : "HASH" }],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" },
-        "GlobalSecondaryIndexes" : [{
-          "IndexName" : "name-index",
-          "Projection": { "ProjectionType": "ALL" },
-          "KeySchema" : [
-            { "AttributeName": "name", "KeyType": "HASH" }
-          ],
-          "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        },{
-        "IndexName" : "organization-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "organization-id", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        },{
-        "IndexName" : "integration-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "integration-id", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "trigger-id-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "trigger-id", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }, {
-        "IndexName" : "trigger-kind-index",
-        "Projection": { "ProjectionType": "ALL" },
-        "KeySchema" : [
-          { "AttributeName": "trigger-kind", "KeyType": "HASH" }
-        ],
-        "ProvisionedThroughput" : { "ReadCapacityUnits" : "20", "WriteCapacityUnits" : "5" }
-        }]
-      }
-    },
-    "ConsolePrivateWorkerQueue": {
-      "Type": "AWS::SQS::Queue",
-      "Properties": {
-        "FifoQueue": { "Fn::If": [ "UseFifoQueue", "true", { "Ref": "AWS::NoValue" } ] }
-      }
-    },
-    "ConsolePrivateWorkerQueuePolicy": {
-      "Type": "AWS::SQS::QueuePolicy",
-      "Properties": {
-        "Queues": [ { "Ref": "ConsolePrivateWorkerQueue" } ],
-        "PolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
+        }
+      },
+      "ConsolePrivateBackupBucket": {
+        "Type": "AWS::S3::Bucket"
+      },
+      "ConsolePrivateBackupBucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+          "Bucket": { "Ref": "ConsolePrivateBackupBucket" },
+          "PolicyDocument": {
+            "Statement": [
+              {
+                "Action": [ "s3:PutObject" ],
+                "Effect": "Deny",
+                "Resource": { "Fn::Sub": "arn:aws:s3:::${ConsolePrivateBackupBucket}/*" },
+                "Principal": "*",
+                "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+              }
+            ]
+          }
+        }
+      },
+      "ConsolePrivateWorkflowBucket": {
+        "Type": "AWS::S3::Bucket"
+      },
+      
+        "ConsolePrivateAuditLogsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-audit-logs" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "rack", "AttributeType": "S" },
+              
+                { "AttributeName": "timestamp", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "rack-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+          "ConsolePrivateAuditLogsScalableTargetRead": {
+            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+            "Properties": {
+              "MaxCapacity": 200,
+              "MinCapacity": 20,
+              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}" },
+              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
+              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
+              "ServiceNamespace": "dynamodb"
+            }
+          },
+          "ConsolePrivateAuditLogsScalableTargetWrite": {
+            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+            "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
+            "Properties": {
+              "MaxCapacity": 20,
+              "MinCapacity": 2,
+              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}" },
+              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
+              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
+              "ServiceNamespace": "dynamodb"
+            }
+          },
+          "ConsolePrivateAuditLogsScalingRead": {
+            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+            "Properties": {
+              "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-scaling-read" },
+              "PolicyType": "TargetTrackingScaling",
+              "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetRead" },
+              "TargetTrackingScalingPolicyConfiguration": {
+                "TargetValue": 70.0,
+                "ScaleInCooldown": 300,
+                "ScaleOutCooldown": 1200,
+                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
+              }
+            }
+          },
+          "ConsolePrivateAuditLogsScalingWrite": {
+            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+            "Properties": {
+              "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-scaling-write" },
+              "PolicyType": "TargetTrackingScaling",
+              "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetWrite" },
+              "TargetTrackingScalingPolicyConfiguration": {
+                "TargetValue": 70.0,
+                "ScaleInCooldown": 300,
+                "ScaleOutCooldown": 1200,
+                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
+              }
+            }
+          },
+          
+            "ConsolePrivateAuditLogsIndexRackScalableTargetRead": {
+              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+              "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
+              "Properties": {
+                "MaxCapacity": 200,
+                "MinCapacity": 20,
+                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/rack-index" },
+                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
+                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
+                "ServiceNamespace": "dynamodb"
+              }
+            },
+            "ConsolePrivateAuditLogsIndexRackScalableTargetWrite": {
+              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
+              "DependsOn": "ConsolePrivateAuditLogsScalableTargetWrite",
+              "Properties": {
+                "MaxCapacity": 20,
+                "MinCapacity": 2,
+                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/rack-index" },
+                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
+                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
+                "ServiceNamespace": "dynamodb"
+              }
+            },
+            "ConsolePrivateAuditLogsIndexRackScalingRead": {
+              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+              "Properties": {
+                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-rack-scaling-read" },
+                "PolicyType": "TargetTrackingScaling",
+                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetRead" },
+                "TargetTrackingScalingPolicyConfiguration": {
+                  "TargetValue": 70.0,
+                  "ScaleInCooldown": 300,
+                  "ScaleOutCooldown": 1200,
+                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
+                }
+              }
+            },
+            "ConsolePrivateAuditLogsIndexRackScalingWrite": {
+              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
+              "Properties": {
+                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-rack-scaling-write" },
+                "PolicyType": "TargetTrackingScaling",
+                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetWrite" },
+                "TargetTrackingScalingPolicyConfiguration": {
+                  "TargetValue": 70.0,
+                  "ScaleInCooldown": 300,
+                  "ScaleOutCooldown": 1200,
+                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
+                }
+              }
+            },
+          
+        
+      
+        "ConsolePrivateDeployKeysDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateAuditLogsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-deploy-keys" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "key-hash", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "key-hash-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "key-hash", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateInstallsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateDeployKeysDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-installs" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateIntegrationsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateInstallsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-integrations" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateJobsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateIntegrationsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-jobs" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "created", "AttributeType": "S" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+                { "AttributeName": "workflow-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "created", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "job-created-org-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "workflow-id-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "workflow-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateOrganizationInvitesDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateJobsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organization-invites" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "email", "AttributeType": "S" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+                { "AttributeName": "token", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "email-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "email", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "token-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "token", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateOrganizationMembershipsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationInvitesDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organization-memberships" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+                { "AttributeName": "user-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "organization-id", "KeyType": "HASH" },
+              { "AttributeName": "user-id", "KeyType": "RANGE" },
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "user-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user-id", "KeyType": "HASH" },
+                    { "AttributeName": "organization-id", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateOrganizationsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationMembershipsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organizations" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "name", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "name-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "name", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateRacksDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-racks" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateUsersDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateRacksDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-users" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "api-key-hash", "AttributeType": "S" },
+              
+                { "AttributeName": "email", "AttributeType": "S" },
+              
+                { "AttributeName": "github-id", "AttributeType": "N" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "password-reset-token", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "api-key-hash-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "api-key-hash", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "email-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "email", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "github-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "github-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "password-reset-token-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "password-reset-token", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateWebhooksDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUsersDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-webhooks" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "app-id", "AttributeType": "S" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "integration-id", "AttributeType": "S" },
+              
+                { "AttributeName": "rack-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "app-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "app-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "integration-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "integration-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "rack-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+        "ConsolePrivateWorkflowsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateWebhooksDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-workflows" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "integration-id", "AttributeType": "S" },
+              
+                { "AttributeName": "name", "AttributeType": "S" },
+              
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+              
+                { "AttributeName": "trigger-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "integration-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "integration-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "name-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "name", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "trigger-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "trigger-id", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+        
+      
+      "DynamoScalingRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [ { "Effect": "Allow", "Principal": { "Service": [ "application-autoscaling.amazonaws.com" ] }, "Action": [ "sts:AssumeRole" ] } ]
+          },
+          "Policies": [
             {
-              "Effect": "Allow",
-              "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
-              "Action": [ "sqs:DeleteMessage", "sqs:SendMessage", "sqs:ReceiveMessage" ],
-              "Resource": { "Fn::GetAtt": [ "ConsolePrivateWorkerQueue", "Arn" ] }
+              "PolicyName": "root",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "dynamodb:DescribeTable",
+                      "dynamodb:UpdateTable",
+                      "cloudwatch:PutMetricAlarm",
+                      "cloudwatch:DescribeAlarms",
+                      "cloudwatch:GetMetricStatistics",
+                      "cloudwatch:SetAlarmState",
+                      "cloudwatch:DeleteAlarms"
+                    ],
+                    "Resource": "*"
+                  }
+                ]
+              }
             }
           ]
         }
       }
-    },
-    "ConsolePrivateAuditLogBucketPolicy": {
-      "Type" : "AWS::S3::BucketPolicy",
-      "Properties" : {
-        "Bucket" : { "Ref":"ConsolePrivateAuditLogBucket" },
-        "PolicyDocument" : {
-          "Statement":[{
-            "Action":["s3:PutObject"],
-            "Effect":"Deny",
-            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateAuditLogBucket" } , "/*" ]]},
-            "Principal":"*",
-            "Condition":{
-              "StringNotEquals":{
-                "s3:x-amz-server-side-encryption":"aws:kms"
-              }
-            }
-          }]
-        }
-      }
-    },
-    "ConsolePrivateBackupBucketPolicy": {
-      "Type" : "AWS::S3::BucketPolicy",
-      "Properties" : {
-        "Bucket" : { "Ref":"ConsolePrivateBackupBucket" },
-        "PolicyDocument" : {
-          "Statement":[{
-            "Action":["s3:PutObject"],
-            "Effect":"Deny",
-            "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ConsolePrivateBackupBucket" } , "/*" ]]},
-            "Principal":"*",
-            "Condition":{
-              "StringNotEquals":{
-                "s3:x-amz-server-side-encryption":"aws:kms"
-              }
-            }
-          }]
-        }
-      }
-    },
-    "ConsolePrivateAuditLogKMSKey": {
-      "Type" : "AWS::KMS::Key",
-      "Properties" : {
-        "Description" : "used for encrypting audit logs",
-        "Enabled" : true,
-        "EnableKeyRotation" : false,
-        "KeyPolicy" : {
-          "Statement":[{
-            "Sid": "Allow administration of the key",
-            "Effect": "Allow",
-            "Principal": { "AWS": { "Fn::Join": ["", ["arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"]] } },
-            "Action": [
-              "kms:Create*",
-              "kms:Describe*",
-              "kms:Enable*",
-              "kms:List*",
-              "kms:Put*",
-              "kms:Update*",
-              "kms:Revoke*",
-              "kms:Disable*",
-              "kms:Get*",
-              "kms:Delete*",
-              "kms:ScheduleKeyDeletion",
-              "kms:CancelKeyDeletion",
-              "kms:Decrypt",
-              "kms:DescribeKey"
-            ],
-            "Resource": "*"
-          },{
-          "Sid": "Allow use of the key",
-          "Effect": "Allow",
-          "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateDynamoDBUser", "Arn"]} },
-          "Action": [
-            "kms:Encrypt",
-            "kms:Decrypt",
-            "kms:ReEncrypt*",
-            "kms:GenerateDataKey*",
-            "kms:DescribeKey"
-          ],
-          "Resource": "*"
-          }, {
-          "Sid": "Allow use of the key",
-          "Effect": "Allow",
-          "Principal": { "AWS": {"Fn::GetAtt": ["ConsolePrivateManagementRole", "Arn"]} },
-          "Action": [
-            "kms:Encrypt",
-            "kms:Decrypt",
-            "kms:ReEncrypt*",
-            "kms:GenerateDataKey*",
-            "kms:DescribeKey"
-          ],
-          "Resource": "*"
-          }]
-        }
-      }
-    },
-    "ConsolePrivateAuditLogBucket":{
-      "Type" : "AWS::S3::Bucket"
-    },
-    "ConsolePrivateWorkflowBucket":{
-      "Type" : "AWS::S3::Bucket"
-    },
-    "ConsolePrivateBackupBucket":{
-      "Type" : "AWS::S3::Bucket"
     }
   }
-}

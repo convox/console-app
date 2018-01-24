@@ -1,0 +1,73 @@
+audit-logs:
+  autoscale: true
+  key: id
+  capacity: 20,2
+  indexes:
+    rack: rack,timestamp
+deploy-keys:
+  key: id
+  capacity: 2,2
+  indexes:
+    key-hash: key-hash
+    organization-id: organization-id
+installs:
+  key: id
+  capacity: 2,2
+integrations:
+  key: id
+  capacity: 2,2
+  indexes:
+    organization-id: organization-id
+jobs:
+  key: id
+  capacity: 20,2
+  indexes:
+    created: created
+    job-created-org: organization-id,created
+    organization-id: organization-id
+    workflow-id-created: workflow-id,created
+organization-invites:
+  key: id
+  capacity: 2,2
+  indexes:
+    email: email
+    organization-id: organization-id
+    token: token
+organizations:
+  key: id
+  capacity: 5,2
+  indexes:
+    name: name
+organization-memberships:
+  key: organization-id,user-id
+  capacity: 5,2
+  indexes:
+    user-id: user-id,organization-id
+racks:
+  key: id
+  capacity: 5,2
+  indexes:
+    organization-id: organization-id
+users:
+  key: id
+  capacity: 5,2
+  indexes:
+    api-key-hash: api-key-hash
+    email: email
+    github-id: github-id
+    password-reset-token: password-reset-token
+webhooks:
+  key: id
+  capacity: 2,2
+  indexes:
+    app-id: app-id
+    integration-id: integration-id
+    rack-id: rack-id
+workflows:
+  key: id
+  capacity: 2,2
+  indexes:
+    integration-id: integration-id
+    name: name
+    organization-id: organization-id
+    trigger-id: trigger-id
