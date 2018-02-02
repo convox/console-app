@@ -1,5 +1,5 @@
 web:
-  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20171122
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180202
   ports:
     - 80:3000
     - 443:4000
@@ -14,5 +14,5 @@ web:
     ALLOW_SIGNUP=false
     TABLE_PREFIX=console-private
 workers:
-  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20171122
+  image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180202
   mem_limit: 512MB
