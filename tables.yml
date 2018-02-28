@@ -5,8 +5,9 @@ audit-logs:
   indexes:
     rack: rack,timestamp
 deploy-keys:
+  autoscale: true
   key: id
-  capacity: 2,2
+  capacity: 10,2
   indexes:
     key-hash: key-hash
     organization-id: organization-id
@@ -19,8 +20,9 @@ integrations:
   indexes:
     organization-id: organization-id
 jobs:
+  autoscale: true
   key: id
-  capacity: 20,2
+  capacity: 2,1
   indexes:
     created: created
     job-created-org: organization-id,created
@@ -34,13 +36,15 @@ organization-invites:
     organization-id: organization-id
     token: token
 organizations:
+  autoscale: true
   key: id
-  capacity: 5,2
+  capacity: 3,1
   indexes:
     name: name
 organization-memberships:
+  autoscale: true
   key: organization-id,user-id
-  capacity: 5,2
+  capacity: 3,1
   indexes:
     user-id: user-id,organization-id
 racks:
@@ -49,8 +53,9 @@ racks:
   indexes:
     organization-id: organization-id
 users:
+  autoscale: true
   key: id
-  capacity: 5,2
+  capacity: 2,2
   indexes:
     api-key-hash: api-key-hash
     email: email
@@ -64,8 +69,9 @@ webhooks:
     integration-id: integration-id
     rack-id: rack-id
 workflows:
+  autoscale: true
   key: id
-  capacity: 2,2
+  capacity: 2,1
   indexes:
     integration-id: integration-id
     name: name
