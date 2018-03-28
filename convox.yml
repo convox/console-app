@@ -1,0 +1,102 @@
+services:
+  web:
+    command: bin/web
+    domain: ${GRID_HOST}
+    environment:
+      - ALLOW_SIGNUP=false
+      - APP=
+      - AUTH_TIMEOUT=
+      - AUTHENTICATION=
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AUDIT_LOGS_OBJECT_STORE
+      - BACKUP_OBJECT_STORE
+      - CLUSTER=
+      - DEVELOPMENT
+      - GITHUB_CLIENT_ID=
+      - GITHUB_CLIENT_SECRET=
+      - GITHUB_OAUTH2_STATE=
+      - GRID_HOST=localhost
+      - LDAP_ADDR=
+      - LDAP_BASE=
+      - MAILGUN_API_KEY
+      - MAILGUN_API_URL
+      - PRIVATE
+      - RACK=
+      - RACK_KEY
+      - ROLLBAR_TOKEN
+      - S3_ENCRYPTION_KEY
+      - SEGMENT_WRITE_KEY
+      - SESSION_KEY
+      - SLACK_CLIENT_ID=
+      - SLACK_CLIENT_SECRET=
+      - STRIPE_PUBLISHABLE_KEY
+      - STRIPE_SECRET_KEY
+      - SMTP_FROM=
+      - SMTP_HOST=
+      - SMTP_PASSWORD=
+      - SMTP_PORT=
+      - SMTP_USERNAME=
+      - SNOOP_ENCRYPTION_KEY
+      - SUPPORT_NAME
+      - SUPPORT_TOKEN
+      - SUPPORT_URL
+      - SUPPORT_EMAIL
+      - TABLE_PREFIX
+      - WORKER_QUEUE
+      - WORKFLOW_OBJECT_STORE
+    health: /check
+    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180328
+    port: https:3001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  workers:
+    command: bin/worker
+    environment:
+      - ALLOW_SIGNUP=false
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - CLUSTER
+      - DEVELOPMENT
+      - GITHUB_CLIENT_ID=
+      - GITHUB_CLIENT_SECRET=
+      - GITHUB_OAUTH2_STATE=
+      - GRID_HOST=localhost
+      - MAILGUN_API_KEY
+      - MAILGUN_API_URL
+      - PRIVATE
+      - RACK_KEY
+      - ROLLBAR_TOKEN
+      - SEGMENT_WRITE_KEY
+      - SESSION_KEY
+      - SLACK_CLIENT_ID=
+      - SLACK_CLIENT_SECRET=
+      - SMTP_FROM=
+      - SMTP_HOST=
+      - SMTP_PASSWORD=
+      - SMTP_PORT=
+      - SMTP_USERNAME=
+      - STRIPE_PUBLISHABLE_KEY
+      - STRIPE_SECRET_KEY
+      - SUPPORT_EMAIL
+      - TABLE_PREFIX
+      - WORKER_QUEUE
+      - WORKFLOW_OBJECT_STORE
+    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180328
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+timers:
+  backup:
+    service: web
+    schedule: 0 4 * * ?
+    command: backup
+  cleanup-jobs:
+    service: web
+    schedule: 30 * * * ?
+    command: cleanup-jobs
+  ping:
+    service: web
+    schedule: 22 * * * ?
+    command: pingracks
