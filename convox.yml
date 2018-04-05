@@ -49,6 +49,10 @@ services:
     health: /check
     image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180328
     port: https:3001
+    scale:
+      count: 2
+      cpu: 128
+      memory: 2000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   workers:
@@ -85,6 +89,10 @@ services:
       - WORKER_QUEUE
       - WORKFLOW_OBJECT_STORE
     image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180328
+    scale:
+      count: 1
+      cpu: 256
+      memory: 500
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 timers:
