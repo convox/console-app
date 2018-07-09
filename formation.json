@@ -248,7 +248,7 @@
             "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
             
               "TimeToLiveSpecification": {
-                "Attribute": "ttl",
+                "AttributeName": "ttl",
                 "Enabled": { "Ref": "TtlEnabled" }
               },
             

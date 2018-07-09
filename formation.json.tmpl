@@ -244,7 +244,7 @@
             "ProvisionedThroughput": { "ReadCapacityUnits": "{{.ReadCapacity}}", "WriteCapacityUnits": "{{.WriteCapacity}}" },
             {{ if .Ttl }}
               "TimeToLiveSpecification": {
-                "Attribute": "{{.Ttl}}",
+                "AttributeName": "{{.Ttl}}",
                 "Enabled": { "Ref": "TtlEnabled" }
               },
             {{ end }}
