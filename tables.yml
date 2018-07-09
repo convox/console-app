@@ -25,6 +25,7 @@ jobs:
     created: created
     job-created-org: organization-id,created
     organization-id: organization-id
+    status-created: status,created
     workflow-id-created: workflow-id,created
 organization-invites:
   key: id
@@ -35,7 +36,7 @@ organization-invites:
     token: token
 organizations:
   key: id
-  capacity: 5,2
+  capacity: 40,2
   indexes:
     name: name
 organization-memberships:

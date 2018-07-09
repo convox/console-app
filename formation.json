@@ -104,7 +104,7 @@
                   },
                   {
                     "Effect": "Allow",
-                    "Action": [ "sts:AssumeRole", "iam:GetUser" ],
+                    "Action": [ "sts:AssumeRole", "iam:GetUser", "iam:PassRole" ],
                     "Resource": "*"
                   }
                 ]
@@ -493,6 +493,8 @@
               
                 { "AttributeName": "organization-id", "AttributeType": "S" },
               
+                { "AttributeName": "status", "AttributeType": "S" },
+              
                 { "AttributeName": "workflow-id", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
@@ -533,6 +535,17 @@
                   "KeySchema": [
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
+                    { "Ref": "AWS::NoValue" }
+                  ],
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                },
+              
+                {
+                  "IndexName": "status-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "status", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
                   ],
                   "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
@@ -675,7 +688,7 @@
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" },
             "GlobalSecondaryIndexes": [
               
                 {
@@ -686,7 +699,7 @@
                     
                     { "Ref": "AWS::NoValue" }
                   ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" }
                 },
               
               { "Ref": "AWS::NoValue" }
