@@ -1,6 +1,7 @@
 audit-logs:
   autoscale: true
   key: id
+  ttl: ttl
   capacity: 20,2
   indexes:
     rack: rack,timestamp

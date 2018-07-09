@@ -5,6 +5,11 @@
       "TablePrefix": {
         "Type": "String",
         "Default": "console-private"
+      },
+      "TtlEnabled": {
+        "Type": "String",
+        "Default": "false",
+        "AllowedValues": [ "true", "false" ]
       }
     },
     "Outputs": {
@@ -241,6 +246,12 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
+            
+              "TimeToLiveSpecification": {
+                "Attribute": "ttl",
+                "Enabled": { "Ref": "TtlEnabled" }
+              },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -387,6 +398,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -434,6 +446,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
               { "Ref": "AWS::NoValue" }
@@ -461,6 +474,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -505,6 +519,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -591,6 +606,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -651,6 +667,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -689,6 +706,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -727,6 +745,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -771,6 +790,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -846,6 +866,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {
@@ -912,6 +933,7 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            
             "GlobalSecondaryIndexes": [
               
                 {

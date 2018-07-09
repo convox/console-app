@@ -26,6 +26,7 @@ type Table struct {
 	HashKey       string
 	RangeKey      string
 	ReadCapacity  int
+	Ttl           string
 	WriteCapacity int
 	Indexes       []Index `yaml:"-"`
 

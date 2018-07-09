@@ -5,6 +5,11 @@
       "TablePrefix": {
         "Type": "String",
         "Default": "console-private"
+      },
+      "TtlEnabled": {
+        "Type": "String",
+        "Default": "false",
+        "AllowedValues": [ "true", "false" ]
       }
     },
     "Outputs": {
@@ -237,6 +242,12 @@
               { "Ref": "AWS::NoValue" }
             ],
             "ProvisionedThroughput": { "ReadCapacityUnits": "{{.ReadCapacity}}", "WriteCapacityUnits": "{{.WriteCapacity}}" },
+            {{ if .Ttl }}
+              "TimeToLiveSpecification": {
+                "Attribute": "{{.Ttl}}",
+                "Enabled": { "Ref": "TtlEnabled" }
+              },
+            {{ end }}
             "GlobalSecondaryIndexes": [
               {{ range .Indexes }}
                 {
