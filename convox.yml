@@ -20,19 +20,19 @@ services:
       - GRID_HOST=localhost
       - LDAP_ADDR=
       - LDAP_BASE=
-      - MAILGUN_API_KEY
-      - MAILGUN_API_URL
+      - MAILGUN_API_KEY=
+      - MAILGUN_API_URL=
       - PRIVATE
       - RACK=
       - RACK_KEY
-      - ROLLBAR_TOKEN
+      - ROLLBAR_TOKEN=
       - S3_ENCRYPTION_KEY
-      - SEGMENT_WRITE_KEY
+      - SEGMENT_WRITE_KEY=
       - SESSION_KEY
       - SLACK_CLIENT_ID=
       - SLACK_CLIENT_SECRET=
-      - STRIPE_PUBLISHABLE_KEY
-      - STRIPE_SECRET_KEY
+      - STRIPE_PUBLISHABLE_KEY=
+      - STRIPE_SECRET_KEY=
       - SMTP_FROM=
       - SMTP_HOST=
       - SMTP_PASSWORD=
@@ -42,7 +42,7 @@ services:
       - SUPPORT_NAME
       - SUPPORT_TOKEN
       - SUPPORT_URL
-      - SUPPORT_EMAIL
+      - SUPPORT_EMAIL=
       - TABLE_PREFIX
       - WORKER_QUEUE
       - WORKFLOW_OBJECT_STORE
@@ -52,7 +52,7 @@ services:
     scale:
       count: 2
       cpu: 128
-      memory: 2000
+      memory: 1900
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   workers:
@@ -62,18 +62,18 @@ services:
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-      - CLUSTER
+      - CLUSTER=
       - DEVELOPMENT
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
       - GITHUB_OAUTH2_STATE=
       - GRID_HOST=localhost
-      - MAILGUN_API_KEY
-      - MAILGUN_API_URL
+      - MAILGUN_API_KEY=
+      - MAILGUN_API_URL=
       - PRIVATE
       - RACK_KEY
-      - ROLLBAR_TOKEN
-      - SEGMENT_WRITE_KEY
+      - ROLLBAR_TOKEN=
+      - SEGMENT_WRITE_KEY=
       - SESSION_KEY
       - SLACK_CLIENT_ID=
       - SLACK_CLIENT_SECRET=
@@ -82,9 +82,9 @@ services:
       - SMTP_PASSWORD=
       - SMTP_PORT=
       - SMTP_USERNAME=
-      - STRIPE_PUBLISHABLE_KEY
-      - STRIPE_SECRET_KEY
-      - SUPPORT_EMAIL
+      - STRIPE_PUBLISHABLE_KEY=
+      - STRIPE_SECRET_KEY=
+      - SUPPORT_EMAIL=
       - TABLE_PREFIX
       - WORKER_QUEUE
       - WORKFLOW_OBJECT_STORE
