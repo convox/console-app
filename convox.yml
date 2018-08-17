@@ -47,7 +47,7 @@ services:
       - WORKER_QUEUE
       - WORKFLOW_OBJECT_STORE
     health: /check
-    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180724
+    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180817
     port: 5000
     scale:
       count: 2
@@ -88,7 +88,7 @@ services:
       - TABLE_PREFIX
       - WORKER_QUEUE
       - WORKFLOW_OBJECT_STORE
-    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180724
+    image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180817
     scale:
       count: 1
       cpu: 256
