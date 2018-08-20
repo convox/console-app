@@ -7,8 +7,6 @@ web:
     - convox.cron.cleanupjobs=30 * * * ? cleanup-jobs
     - convox.cron.pingracks=22 * * * ? pingracks
     - convox.port.443.protocol=tls
-    - convox.port.443.secure=true
-    - convox.port.443.proxy=true
   mem_limit: 512MB
   env:
     ALLOW_SIGNUP=false
