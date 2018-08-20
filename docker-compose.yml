@@ -1,8 +1,7 @@
 web:
   image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180724
   ports:
-    - 80:3000
-    - 443:4000
+    - 443:5000
   labels:
     - convox.cron.backup=0 4 * * ? backup
     - convox.cron.cleanupjobs=30 * * * ? cleanup-jobs
