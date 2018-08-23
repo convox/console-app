@@ -182,7 +182,12 @@
         }
       },
       "ConsolePrivateAuditLogBucket": {
-        "Type": "AWS::S3::Bucket"
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
       },
       "ConsolePrivateAuditLogBucketPolicy": {
         "Type": "AWS::S3::BucketPolicy",
@@ -202,7 +207,12 @@
         }
       },
       "ConsolePrivateBackupBucket": {
-        "Type": "AWS::S3::Bucket"
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
       },
       "ConsolePrivateBackupBucketPolicy": {
         "Type": "AWS::S3::BucketPolicy",
@@ -222,7 +232,12 @@
         }
       },
       "ConsolePrivateWorkflowBucket": {
-        "Type": "AWS::S3::Bucket"
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
       },
       {{ range $t := .Tables }}
         "ConsolePrivate{{ upper .Name }}DynamoDBTable": {

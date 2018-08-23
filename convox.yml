@@ -48,6 +48,7 @@ services:
       - WORKFLOW_OBJECT_STORE
     health: /check
     image: 922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20180817
+    internal: ${PRIVATE}
     port: 5000
     scale:
       count: 2
