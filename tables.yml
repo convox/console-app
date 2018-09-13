@@ -13,9 +13,11 @@ deploy-keys:
     key-hash: key-hash
     organization-id: organization-id
 installs:
-  key: id
+  autoscale: true
   capacity: 2,2
+  key: id
 integrations:
+  autoscale: true
   key: id
   capacity: 2,2
   indexes:
@@ -31,6 +33,7 @@ jobs:
     status-created: status,created
     workflow-id-created: workflow-id,created
 organization-invites:
+  autoscale: true
   key: id
   capacity: 2,2
   indexes:
@@ -43,13 +46,8 @@ organizations:
   capacity: 40,2
   indexes:
     name: name
-organization-memberships:
-  autoscale: true
-  key: organization-id,user-id
-  capacity: 3,1
-  indexes:
-    user-id: user-id,organization-id
 racks:
+  autoscale: true
   key: id
   capacity: 5,2
   indexes:
@@ -64,6 +62,7 @@ users:
     github-id: github-id
     password-reset-token: password-reset-token
 webhooks:
+  autoscale: true
   key: id
   capacity: 2,2
   indexes:
