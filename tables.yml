@@ -2,13 +2,13 @@ audit-logs:
   autoscale: true
   key: id
   ttl: ttl
-  capacity: 20,2
+  capacity: 5,2
   indexes:
     rack: rack,timestamp
 deploy-keys:
   autoscale: true
   key: id
-  capacity: 10,2
+  capacity: 5,2
   indexes:
     key-hash: key-hash
     organization-id: organization-id
@@ -25,7 +25,7 @@ integrations:
 jobs:
   autoscale: true
   key: id
-  capacity: 2,1
+  capacity: 20,2
   indexes:
     created: created
     job-created-org: organization-id,created
@@ -72,7 +72,7 @@ webhooks:
 workflows:
   autoscale: true
   key: id
-  capacity: 2,1
+  capacity: 2,2
   indexes:
     integration-id: integration-id
     name: name
