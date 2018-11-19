@@ -28,7 +28,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: "922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20181119"
+    image: "922560784203.dkr.ecr.us-east-1.amazonaws.com/console:20181119"
     init: true
     port: https:3000
     scale:
@@ -46,7 +46,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: "922560784203.dkr.ecr.us-east-1.amazonaws.com/console-private:20181119"
+    image: "922560784203.dkr.ecr.us-east-1.amazonaws.com/console:20181119"
     init: true
 timers:
   rack-webhooks:
