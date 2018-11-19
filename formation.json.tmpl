@@ -25,22 +25,8 @@
       "AwsSecretAccessKey": {
         "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
       },
-      "BackupObjectStore": {
-        "Value": {
-          "Ref": "ConsolePrivateBackupBucket"
-        }
-      },
-      "Development": {
-        "Value": "false"
-      },
-      "Private": {
-        "Value": "true"
-      },
       "RackKey": {
         "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
-      },
-      "S3EncryptionKey": {
-        "Value": { "Ref": "ConsolePrivateAuditLogKMSKey" }
       },
       "SessionKey": {
         "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
@@ -50,9 +36,6 @@
       },
       "WorkerQueue": {
         "Value": { "Ref": "ConsolePrivateWorkerQueue" }
-      },
-      "WorkflowObjectStore": {
-        "Value": { "Ref": "ConsolePrivateWorkflowBucket" }
       }
     },
     "Resources": {

@@ -4,7 +4,13 @@ audit-logs:
   ttl: ttl
   capacity: 20,2
   indexes:
+    organization-id: organization,timestamp
     rack: rack,timestamp
+challenges:
+  autoscale: true
+  key: id
+  capacity: 2,2
+  ttl: ttl
 deploy-keys:
   autoscale: true
   key: id
@@ -52,6 +58,19 @@ racks:
   capacity: 5,2
   indexes:
     organization-id: organization-id
+sessions:
+  autoscale: true
+  key: id
+  capacity: 40,2
+  ttl: ttl
+  indexes:
+    user-id: user-id
+tokens:
+  autoscale: true
+  key: id
+  capacity: 2,2
+  indexes:
+    user-id: user-id
 users:
   autoscale: true
   key: id
