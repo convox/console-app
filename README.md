@@ -12,8 +12,6 @@ You can use any name you like but this document will assume the name `console`.
 
     $ convox apps create console --wait
 
-## Resource Stack Setup
-
 ### Set up private registry
 
 Convox will provide credentials for a private registry to access the Console images.
@@ -21,6 +19,8 @@ Convox will provide credentials for a private registry to access the Console ima
 Substitute `USERNAME` and `PASSWORD` in this command to add the private registry to your Rack.
 
     $ convox registries add 922560784203.dkr.ecr.us-east-1.amazonaws.com USERNAME PASSWORD
+
+## Resource Stack Setup
 
 ### Create the stack
 
