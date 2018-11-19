@@ -2,6 +2,12 @@
 
 ## Application Setup
 
+### Clone this repository
+
+    $ git clone https://github.com/convox/console-app -b console2
+
+### Create the Console application
+
 You can use any name you like but this document will assume the name `console`.
 
     $ convox apps create console --wait
