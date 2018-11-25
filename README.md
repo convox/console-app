@@ -18,7 +18,7 @@ Convox will provide credentials for a private registry to access the Console ima
 
 Substitute `USERNAME` and `PASSWORD` in this command to add the private registry to your Rack.
 
-    $ convox registries add 922560784203.dkr.ecr.us-east-1.amazonaws.com USERNAME PASSWORD
+    $ convox registries add registry.convox.com USERNAME PASSWORD
 
 ## Resource Stack Setup
 
