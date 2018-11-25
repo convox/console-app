@@ -71,6 +71,14 @@ Deploy the application contained in this repository.
 
 If you'd like to use the GitHub, GitLab, or Slack integrations in your private Console you will need to create your own OAuth applications for each service.
 
+Use the following callback URL(s) for each service:
+
+| Provider | Callback URL(s)                                                                        |
+|----------|----------------------------------------------------------------------------------------|
+| Github   | `https://$host/`                                                                       |
+| Gitlab   | `https://$host/integrations/authorize/gitlab`<br>`https://$host/integrations/reauthorize` |
+| Slack    | `https://$host/integrations/authorize/slack`                                           |
+
 Once created, set the appropriate environment variables on your Console application:
 
     $ convox env set -a console GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=...
