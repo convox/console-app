@@ -9,7 +9,9 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
-      - GITHUB_ENDPOINT=
+      - GITHUB_ENTERPRISE_CLIENT_ID=
+      - GITHUB_ENTERPRISE_CLIENT_SECRET=
+      - GITHUB_ENTERPRISE_ENDPOINT=
       - GITHUB_WEBHOOK_SECRET=
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
@@ -28,7 +30,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: "registry.convox.com/console:2018112703"
+    image: "registry.convox.com/console:2018112704"
     init: true
     port: https:3000
     scale:
@@ -46,7 +48,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: "registry.convox.com/console:2018112703"
+    image: "registry.convox.com/console:2018112704"
     init: true
 timers:
   rack-webhooks:
