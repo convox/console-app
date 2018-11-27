@@ -17,7 +17,7 @@ services:
       - GITLAB_WEBHOOK_SECRET=
       - HOST
       - LDAP_ADDR=
-      - LDAP_BASE=
+      - LDAP_BIND=
       - LICENSE
       - RACK_KEY
       - SESSION_KEY
