@@ -30,7 +30,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: "registry.convox.com/console:2018112704"
+    image: "registry.convox.com/console:2018112705"
     init: true
     port: https:3000
     scale:
@@ -48,7 +48,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: "registry.convox.com/console:2018112704"
+    image: "registry.convox.com/console:2018112705"
     init: true
 timers:
   rack-webhooks:
