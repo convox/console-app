@@ -46,7 +46,7 @@ Decide on a custom domain for your Console. These instructions will assume `cons
 
 ### Create a certificate
 
-Create an SSL certificate for your application. You can use `convox certs import` to load a certificate 
+Create an SSL certificate for your application. You can use `convox certs import` to load a certificate
 that you create manually or you can use the Rack's built-in certificate generator.
 
     $ convox certs generate console.example.org
@@ -98,7 +98,9 @@ Promote the environment changes
 You can provide credentials for a secure (TLS) LDAP endpoint to use for authentication.
 
     $ convox env set -a console AUTHENTICATION=ldap
-    $ convox env set -a console LDAP_ADDR=auth.example.org:636 LDAP_BASE=dc=example,dc=org
+    $ convox env set -a console LDAP_ADDR=auth.example.org:636 LDAP_BIND=uid=%s,dc=example,dc=org
+
+Set `LDAP_BIND` to a full bind string where `%s` will be substituted for the user's email address.
 
 Promote the environment changes
 
