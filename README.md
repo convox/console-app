@@ -85,9 +85,9 @@ Once created, set the appropriate environment variables on your Console applicat
     $ convox env set -a console GITLAB_CLIENT_ID=... GITLAB_CLIENT_SECRET=...
     $ convox env set -a console SLACK_CLIENT_ID=... SLACK_CLIENT_SECRET=...
 
-If you'd like to use GitHub enterprise, you'll also need to set the endpoint:
+If you'd like to use GitHub Enterprise, you'll also need to set the host:
 
-    $ convox env set -a console GITHUB_ENTERPRISE_CLIENT_ID=... GITHUB_ENTERPRISE_CLIENT_SECRET=... GITHUB_ENDPOINT=https://github.mycompany.org
+    $ convox env set -a console GITHUB_ENTERPRISE_CLIENT_ID=... GITHUB_ENTERPRISE_CLIENT_SECRET=... GITHUB_ENTERPRISE_HOST=github.mycompany.org
 
 Promote the environment changes
 
