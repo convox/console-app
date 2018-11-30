@@ -34,6 +34,10 @@ Wait for this stack to fully complete.
 
     $ bin/export-env console-resources | convox env set -a console
 
+### Configure app parameters
+
+    $ convox apps params set RackUrl=Yes -a console
+
 ## License Setup
 
 Convox will provide you a license for your Console.
@@ -73,11 +77,11 @@ If you'd like to use the GitHub, GitLab, or Slack integrations in your private C
 
 Use the following callback URL(s) for each service:
 
-| Provider | Callback URL(s)                                                                        |
-|----------|----------------------------------------------------------------------------------------|
-| Github   | `https://$host/`                                                                       |
+| Provider | Callback URL(s)                                                                           |
+|----------|-------------------------------------------------------------------------------------------|
+| Github   | `https://$host/`                                                                          |
 | Gitlab   | `https://$host/integrations/authorize/gitlab`<br>`https://$host/integrations/reauthorize` |
-| Slack    | `https://$host/integrations/authorize/slack`                                           |
+| Slack    | `https://$host/integrations/authorize/slack`                                              |
 
 Once created, set the appropriate environment variables on your Console application:
 
