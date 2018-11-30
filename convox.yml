@@ -41,6 +41,7 @@ services:
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - GITHUB_ENTERPRISE_HOST=
       - HOST
       - LICENSE
       - RACK_KEY
