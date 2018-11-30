@@ -60,6 +60,7 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 ### Configure app environment
 
     $ convox env set -a console HOST=console.example.org
+    $ convox apps params set RackUrl=Yes -a console
 
 ### Deploy the Console
 
