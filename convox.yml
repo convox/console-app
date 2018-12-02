@@ -19,7 +19,7 @@ services:
       - HOST
       - LDAP_ADDR=
       - LDAP_BIND=
-      - LICENSE
+      - LICENSE_KEY
       - RACK_KEY
       - SESSION_KEY
       - SLACK_CLIENT_ID=
@@ -29,11 +29,13 @@ services:
     health:
       interval: 30
       path: /check
-    image: "registry.convox.com/console:20181129"
+    image: enterprise.convox.com/console:20181201
     init: true
     port: https:3000
     scale:
       count: 2
+      cpu: 64
+      memory: 500
     test: make test
   worker:
     command: bin/worker
@@ -43,13 +45,17 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - GITHUB_ENTERPRISE_HOST=
       - HOST
-      - LICENSE
+      - LICENSE_KEY
       - RACK_KEY
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: "registry.convox.com/console:20181129"
+    image: enterprise.convox.com/console:20181201
     init: true
+    scale:
+      count: 1
+      cpu: 128
+      memory: 500
 timers:
   rack-webhooks:
     command: task rack-webhooks

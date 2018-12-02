@@ -18,7 +18,7 @@ Convox will provide credentials for a private registry to access the Console ima
 
 Substitute `USERNAME` and `PASSWORD` in this command to add the private registry to your Rack.
 
-    $ convox registries add registry.convox.com USERNAME PASSWORD
+    $ convox registries add enterprise.convox.com USERNAME PASSWORD
 
 ## Resource Stack Setup
 
@@ -30,11 +30,11 @@ You can use any name you like but the rest of this document will assume the name
 
 Wait for this stack to fully complete.
 
-### Configure app environment
+### Configure Console environment
 
     $ bin/export-env console-resources | convox env set -a console
 
-### Configure app parameters
+### Configure Console parameters
 
     $ convox apps params set RackUrl=Yes -a console
 
@@ -42,7 +42,7 @@ Wait for this stack to fully complete.
 
 Convox will provide you a license for your Console.
 
-    $ convox env set -a console LICENSE=...
+    $ convox env set -a console LICENSE_KEY=...
 
 ## Custom Domain Setup
 
