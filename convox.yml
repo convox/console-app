@@ -29,7 +29,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:20181201
+    image: enterprise.convox.com/console:20181203
     init: true
     port: https:3000
     scale:
@@ -50,7 +50,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:20181201
+    image: enterprise.convox.com/console:20181203
     init: true
     scale:
       count: 1
