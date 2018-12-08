@@ -4,7 +4,7 @@
 
 ### Clone this repository
 
-    $ git clone https://github.com/convox/console-app -b console2
+    $ git clone https://github.com/convox/console-app
 
 ### Create the Console application
 
