@@ -262,7 +262,7 @@
                     { "AttributeName": "timestamp", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
                   ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
                 },
               
                 {
@@ -337,8 +337,8 @@
               "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
               "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
               "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
+                "MaxCapacity": 50,
+                "MinCapacity": 5,
                 "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/organization-id-index" },
                 "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
                 "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
