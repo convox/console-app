@@ -15,7 +15,6 @@ services:
       - GITHUB_WEBHOOK_SECRET=
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
-      - GITLAB_WEBHOOK_SECRET=
       - HOST
       - LDAP_ADDR=
       - LDAP_BIND=
