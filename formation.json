@@ -214,14 +214,6 @@
           }
         }
       },
-      "ConsolePrivateWorkflowBucket": {
-        "Type": "AWS::S3::Bucket",
-        "Properties": {
-          "BucketEncryption": {
-            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
-          }
-        }
-      },
       
         "ConsolePrivateAuditLogsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -240,12 +232,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
               "TimeToLiveSpecification": {
                 "AttributeName": "ttl",
@@ -261,8 +256,7 @@
                     { "AttributeName": "organization", "KeyType": "HASH" },
                     { "AttributeName": "timestamp", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -272,174 +266,13 @@
                     { "AttributeName": "rack", "KeyType": "HASH" },
                     { "AttributeName": "timestamp", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateAuditLogsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 50,
-              "MinCapacity": 5,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateAuditLogsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateAuditLogsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateAuditLogsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateAuditLogsIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 50,
-                "MinCapacity": 5,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateAuditLogsIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateAuditLogsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateAuditLogsIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateAuditLogsIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateAuditLogsIndexRackScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateAuditLogsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 50,
-                "MinCapacity": 5,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/rack-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateAuditLogsIndexRackScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateAuditLogsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateAuditLogsDynamoDBTable}/index/rack-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateAuditLogsIndexRackScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-rack-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateAuditLogsIndexRackScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-audit-logs-index-rack-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateAuditLogsIndexRackScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateChallengesDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -452,12 +285,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
               "TimeToLiveSpecification": {
                 "AttributeName": "ttl",
@@ -470,60 +306,6 @@
             ]
           }
         },
-        
-          "ConsolePrivateChallengesScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateChallengesDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateChallengesScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateChallengesScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateChallengesDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateChallengesScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-challenges-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateChallengesScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateChallengesScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-challenges-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateChallengesScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-        
       
         "ConsolePrivateDeployKeysDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -540,12 +322,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -556,8 +341,7 @@
                     { "AttributeName": "key-hash", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -567,174 +351,13 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateDeployKeysScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 50,
-              "MinCapacity": 5,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateDeployKeysScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateDeployKeysScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateDeployKeysScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateDeployKeysScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateDeployKeysIndexKeyHashScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateDeployKeysScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 50,
-                "MinCapacity": 5,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}/index/key-hash-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateDeployKeysIndexKeyHashScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateDeployKeysScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}/index/key-hash-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateDeployKeysIndexKeyHashScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-index-key-hash-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexKeyHashScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateDeployKeysIndexKeyHashScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-index-key-hash-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexKeyHashScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateDeployKeysScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 50,
-                "MinCapacity": 5,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateDeployKeysScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateDeployKeysDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateDeployKeysIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateDeployKeysIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-deploy-keys-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateDeployKeysIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateInstallsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -747,12 +370,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -760,60 +386,6 @@
             ]
           }
         },
-        
-          "ConsolePrivateInstallsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateInstallsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateInstallsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateInstallsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateInstallsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateInstallsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-installs-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateInstallsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateInstallsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-installs-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateInstallsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-        
       
         "ConsolePrivateIntegrationsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -828,12 +400,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -844,121 +419,13 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateIntegrationsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateIntegrationsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateIntegrationsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateIntegrationsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateIntegrationsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateIntegrationsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-integrations-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateIntegrationsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-integrations-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateIntegrationsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateIntegrationsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateIntegrationsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateIntegrationsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateIntegrationsIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-integrations-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateIntegrationsIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-integrations-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateIntegrationsIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateJobsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -979,12 +446,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -995,8 +465,7 @@
                     { "AttributeName": "created", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1006,8 +475,7 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     { "AttributeName": "created", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1017,8 +485,7 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1028,8 +495,7 @@
                     { "AttributeName": "status", "KeyType": "HASH" },
                     { "AttributeName": "created", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1039,333 +505,13 @@
                     { "AttributeName": "workflow-id", "KeyType": "HASH" },
                     { "AttributeName": "created", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "20", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateJobsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 200,
-              "MinCapacity": 20,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateJobsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateJobsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateJobsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateJobsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateJobsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateJobsIndexCreatedScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexCreatedScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexCreatedScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-created-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexCreatedScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateJobsIndexCreatedScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-created-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexCreatedScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/job-created-org-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/job-created-org-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexJobCreatedOrgScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-job-created-org-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateJobsIndexJobCreatedOrgScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-job-created-org-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexJobCreatedOrgScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateJobsIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateJobsIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateJobsIndexStatusCreatedScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/status-created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexStatusCreatedScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/status-created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexStatusCreatedScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-status-created-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexStatusCreatedScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateJobsIndexStatusCreatedScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-status-created-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexStatusCreatedScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 200,
-                "MinCapacity": 20,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/workflow-id-created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateJobsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateJobsDynamoDBTable}/index/workflow-id-created-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateJobsIndexWorkflowIdCreatedScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-workflow-id-created-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateJobsIndexWorkflowIdCreatedScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-jobs-index-workflow-id-created-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateJobsIndexWorkflowIdCreatedScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateOrganizationInvitesDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -1384,12 +530,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -1400,8 +549,7 @@
                     { "AttributeName": "email", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1411,8 +559,7 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -1422,227 +569,13 @@
                     { "AttributeName": "token", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateOrganizationInvitesScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateOrganizationInvitesScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateOrganizationInvitesScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateOrganizationInvitesScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/email-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/email-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexEmailScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-email-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexEmailScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-email-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexEmailScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/token-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationInvitesScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationInvitesDynamoDBTable}/index/token-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexTokenScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-token-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateOrganizationInvitesIndexTokenScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organization-invites-index-token-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationInvitesIndexTokenScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateOrganizationsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -1657,12 +590,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -1673,121 +609,13 @@
                     { "AttributeName": "name", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateOrganizationsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 400,
-              "MinCapacity": 40,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateOrganizationsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateOrganizationsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateOrganizationsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-organizations-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateOrganizationsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-organizations-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateOrganizationsIndexNameScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 400,
-                "MinCapacity": 40,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationsDynamoDBTable}/index/name-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationsIndexNameScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateOrganizationsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateOrganizationsDynamoDBTable}/index/name-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateOrganizationsIndexNameScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organizations-index-name-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsIndexNameScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateOrganizationsIndexNameScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-organizations-index-name-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateOrganizationsIndexNameScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateRacksDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -1802,12 +630,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -1818,121 +649,13 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "5", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateRacksScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 50,
-              "MinCapacity": 5,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateRacksDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateRacksScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateRacksScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateRacksDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateRacksScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-racks-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateRacksScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateRacksScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-racks-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateRacksScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateRacksIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateRacksScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 50,
-                "MinCapacity": 5,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateRacksDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateRacksIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateRacksScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateRacksDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateRacksIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-racks-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateRacksIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateRacksIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-racks-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateRacksIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateSessionsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -1947,12 +670,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
               "TimeToLiveSpecification": {
                 "AttributeName": "ttl",
@@ -1968,121 +694,13 @@
                     { "AttributeName": "user-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "40", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateSessionsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 400,
-              "MinCapacity": 40,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateSessionsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateSessionsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateSessionsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateSessionsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateSessionsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-sessions-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateSessionsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateSessionsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-sessions-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateSessionsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateSessionsIndexUserIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateSessionsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 400,
-                "MinCapacity": 40,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateSessionsDynamoDBTable}/index/user-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateSessionsIndexUserIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateSessionsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateSessionsDynamoDBTable}/index/user-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateSessionsIndexUserIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-sessions-index-user-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateSessionsIndexUserIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateSessionsIndexUserIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-sessions-index-user-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateSessionsIndexUserIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateTokensDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -2097,12 +715,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -2113,121 +734,13 @@
                     { "AttributeName": "user-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateTokensScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateTokensDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateTokensScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateTokensScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateTokensDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateTokensScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-tokens-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateTokensScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateTokensScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-tokens-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateTokensScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateTokensIndexUserIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateTokensScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateTokensDynamoDBTable}/index/user-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateTokensIndexUserIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateTokensScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateTokensDynamoDBTable}/index/user-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateTokensIndexUserIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-tokens-index-user-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateTokensIndexUserIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateTokensIndexUserIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-tokens-index-user-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateTokensIndexUserIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateUsersDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -2248,12 +761,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -2264,8 +780,7 @@
                     { "AttributeName": "api-key-hash", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2275,8 +790,7 @@
                     { "AttributeName": "email", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2286,8 +800,7 @@
                     { "AttributeName": "github-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2297,280 +810,13 @@
                     { "AttributeName": "password-reset-token", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateUsersScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateUsersScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateUsersScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateUsersScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-users-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateUsersScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateUsersScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-users-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateUsersScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateUsersIndexApiKeyHashScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/api-key-hash-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexApiKeyHashScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/api-key-hash-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexApiKeyHashScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-api-key-hash-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexApiKeyHashScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateUsersIndexApiKeyHashScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-api-key-hash-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexApiKeyHashScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateUsersIndexEmailScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/email-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexEmailScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/email-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexEmailScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-email-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexEmailScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateUsersIndexEmailScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-email-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexEmailScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateUsersIndexGithubIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/github-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexGithubIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/github-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexGithubIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-github-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexGithubIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateUsersIndexGithubIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-github-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexGithubIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/password-reset-token-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateUsersScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateUsersDynamoDBTable}/index/password-reset-token-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateUsersIndexPasswordResetTokenScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-password-reset-token-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateUsersIndexPasswordResetTokenScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-users-index-password-reset-token-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateUsersIndexPasswordResetTokenScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateWebhooksDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -2589,12 +835,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -2605,8 +854,7 @@
                     { "AttributeName": "app-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2616,8 +864,7 @@
                     { "AttributeName": "integration-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2627,227 +874,13 @@
                     { "AttributeName": "rack-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateWebhooksScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateWebhooksScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateWebhooksScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateWebhooksScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateWebhooksScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateWebhooksIndexAppIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/app-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexAppIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/app-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexAppIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-app-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexAppIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWebhooksIndexAppIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-app-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexAppIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/integration-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/integration-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexIntegrationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-integration-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWebhooksIndexIntegrationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-integration-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexIntegrationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateWebhooksIndexRackIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/rack-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexRackIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWebhooksScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWebhooksDynamoDBTable}/index/rack-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWebhooksIndexRackIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-rack-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexRackIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWebhooksIndexRackIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-webhooks-index-rack-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWebhooksIndexRackIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
         "ConsolePrivateWorkflowsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
@@ -2868,12 +901,15 @@
               
               { "Ref": "AWS::NoValue" }
             ],
+            "BillingMode": "PAY_PER_REQUEST",
             "KeySchema": [
               { "AttributeName": "id", "KeyType": "HASH" },
               
               { "Ref": "AWS::NoValue" }
             ],
-            "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" },
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -2884,8 +920,7 @@
                     { "AttributeName": "integration-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2895,8 +930,7 @@
                     { "AttributeName": "name", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2906,8 +940,7 @@
                     { "AttributeName": "organization-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
                 {
@@ -2917,311 +950,20 @@
                     { "AttributeName": "trigger-id", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
-                  ],
-                  "ProvisionedThroughput": { "ReadCapacityUnits": "2", "WriteCapacityUnits": "2" }
+                  ]
                 },
               
               { "Ref": "AWS::NoValue" }
             ]
           }
         },
-        
-          "ConsolePrivateWorkflowsScalableTargetRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:ReadCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateWorkflowsScalableTargetWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-            "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
-            "Properties": {
-              "MaxCapacity": 20,
-              "MinCapacity": 2,
-              "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}" },
-              "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-              "ScalableDimension": "dynamodb:table:WriteCapacityUnits",
-              "ServiceNamespace": "dynamodb"
-            }
-          },
-          "ConsolePrivateWorkflowsScalingRead": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-scaling-read" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsScalableTargetRead" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-              }
-            }
-          },
-          "ConsolePrivateWorkflowsScalingWrite": {
-            "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-            "Properties": {
-              "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-scaling-write" },
-              "PolicyType": "TargetTrackingScaling",
-              "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsScalableTargetWrite" },
-              "TargetTrackingScalingPolicyConfiguration": {
-                "TargetValue": 70.0,
-                "ScaleInCooldown": 300,
-                "ScaleOutCooldown": 1200,
-                "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-              }
-            }
-          },
-          
-            "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/integration-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/integration-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexIntegrationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-integration-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWorkflowsIndexIntegrationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-integration-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexIntegrationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateWorkflowsIndexNameScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/name-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexNameScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/name-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexNameScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-name-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexNameScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWorkflowsIndexNameScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-name-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexNameScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/organization-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexOrganizationIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-organization-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWorkflowsIndexOrganizationIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-organization-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexOrganizationIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-            "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetRead",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/trigger-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:ReadCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalableTarget",
-              "DependsOn": "ConsolePrivateWorkflowsScalableTargetWrite",
-              "Properties": {
-                "MaxCapacity": 20,
-                "MinCapacity": 2,
-                "ResourceId": { "Fn::Sub": "table/${ConsolePrivateWorkflowsDynamoDBTable}/index/trigger-id-index" },
-                "RoleARN": { "Fn::GetAtt": [ "DynamoScalingRole", "Arn" ] },
-                "ScalableDimension": "dynamodb:index:WriteCapacityUnits",
-                "ServiceNamespace": "dynamodb"
-              }
-            },
-            "ConsolePrivateWorkflowsIndexTriggerIdScalingRead": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-trigger-id-scaling-read" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetRead" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBReadCapacityUtilization" }
-                }
-              }
-            },
-            "ConsolePrivateWorkflowsIndexTriggerIdScalingWrite": {
-              "Type": "AWS::ApplicationAutoScaling::ScalingPolicy",
-              "Properties": {
-                "PolicyName": { "Fn::Sub": "${TablePrefix}-workflows-index-trigger-id-scaling-write" },
-                "PolicyType": "TargetTrackingScaling",
-                "ScalingTargetId": { "Ref": "ConsolePrivateWorkflowsIndexTriggerIdScalableTargetWrite" },
-                "TargetTrackingScalingPolicyConfiguration": {
-                  "TargetValue": 70.0,
-                  "ScaleInCooldown": 300,
-                  "ScaleOutCooldown": 1200,
-                  "PredefinedMetricSpecification": { "PredefinedMetricType": "DynamoDBWriteCapacityUtilization" }
-                }
-              }
-            },
-          
-        
       
-      "DynamoScalingRole": {
-        "Type": "AWS::IAM::Role",
+      "ConsolePrivateWorkflowBucket": {
+        "Type": "AWS::S3::Bucket",
         "Properties": {
-          "AssumeRolePolicyDocument": {
-            "Version": "2012-10-17",
-            "Statement": [ { "Effect": "Allow", "Principal": { "Service": [ "application-autoscaling.amazonaws.com" ] }, "Action": [ "sts:AssumeRole" ] } ]
-          },
-          "Policies": [
-            {
-              "PolicyName": "root",
-              "PolicyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [
-                  {
-                    "Effect": "Allow",
-                    "Action": [
-                      "dynamodb:DescribeTable",
-                      "dynamodb:UpdateTable",
-                      "cloudwatch:PutMetricAlarm",
-                      "cloudwatch:DescribeAlarms",
-                      "cloudwatch:GetMetricStatistics",
-                      "cloudwatch:SetAlarmState",
-                      "cloudwatch:DeleteAlarms"
-                    ],
-                    "Resource": "*"
-                  }
-                ]
-              }
-            }
-          ]
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
         }
       }
     }

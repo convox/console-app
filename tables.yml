@@ -1,37 +1,25 @@
 audit-logs:
-  autoscale: true
   key: id
   ttl: ttl
-  capacity: 5,2
   indexes:
     organization-id: organization,timestamp
     rack: rack,timestamp
 challenges:
-  autoscale: true
   key: id
-  capacity: 2,2
   ttl: ttl
 deploy-keys:
-  autoscale: true
   key: id
-  capacity: 5,2
   indexes:
     key-hash: key-hash
     organization-id: organization-id
 installs:
-  autoscale: true
-  capacity: 2,2
   key: id
 integrations:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     organization-id: organization-id
 jobs:
-  autoscale: true
   key: id
-  capacity: 20,2
   indexes:
     created: created
     job-created-org: organization-id,created
@@ -39,59 +27,43 @@ jobs:
     status-created: status,created
     workflow-id-created: workflow-id,created
 organization-invites:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     email: email
     organization-id: organization-id
     token: token
 organizations:
-  autoscale: true
   key: id
-  capacity: 40,2
   indexes:
     name: name
 racks:
-  autoscale: true
   key: id
-  capacity: 5,2
   indexes:
     organization-id: organization-id
 sessions:
-  autoscale: true
   key: id
-  capacity: 40,2
   ttl: ttl
   indexes:
     user-id: user-id
 tokens:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     user-id: user-id
 users:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     api-key-hash: api-key-hash
     email: email
     github-id: github-id
     password-reset-token: password-reset-token
 webhooks:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     app-id: app-id
     integration-id: integration-id
     rack-id: rack-id
 workflows:
-  autoscale: true
   key: id
-  capacity: 2,2
   indexes:
     integration-id: integration-id
     name: name

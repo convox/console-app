@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -20,19 +19,15 @@ func main() {
 }
 
 type Table struct {
-	Name          string
-	DependsOn     string
-	Autoscale     bool `yaml:"autoscale"`
-	HashKey       string
-	RangeKey      string
-	ReadCapacity  int
-	Ttl           string
-	WriteCapacity int
-	Indexes       []Index `yaml:"-"`
+	Name      string
+	DependsOn string
+	HashKey   string
+	RangeKey  string
+	Ttl       string
+	Indexes   []Index `yaml:"-"`
 
-	RawKey      string            `yaml:"key"`
-	RawCapacity string            `yaml:"capacity"`
-	RawIndexes  map[string]string `yaml:"indexes"`
+	RawKey     string            `yaml:"key"`
+	RawIndexes map[string]string `yaml:"indexes"`
 }
 
 type Index struct {
@@ -44,16 +39,6 @@ type Index struct {
 type Tables map[string]Table
 
 func run() error {
-	multiplier := 1
-
-	if len(os.Args) > 1 {
-		i, err := strconv.Atoi(os.Args[1])
-		if err != nil {
-			return err
-		}
-		multiplier = i
-	}
-
 	data, err := ioutil.ReadFile("tables.yml")
 	if err != nil {
 		return err
@@ -77,24 +62,6 @@ func run() error {
 		if len(p) > 1 {
 			v.RangeKey = strings.TrimSpace(p[1])
 		}
-
-		p = strings.Split(v.RawCapacity, ",")
-
-		if len(p) != 2 {
-			return fmt.Errorf("invalid capacity: %s", v.RawCapacity)
-		}
-
-		r, err := strconv.Atoi(p[0])
-		if err != nil {
-			return err
-		}
-		v.ReadCapacity = r * multiplier
-
-		w, err := strconv.Atoi(p[1])
-		if err != nil {
-			return err
-		}
-		v.WriteCapacity = w * multiplier
 
 		v.Indexes = []Index{}
 
