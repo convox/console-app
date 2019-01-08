@@ -2,6 +2,11 @@
   {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Parameters": {
+      "SseEnabled": {
+        "Type": "String",
+        "Default": "false",
+        "AllowedValues": [ "true", "false" ]
+      },
       "TablePrefix": {
         "Type": "String",
         "Default": "console-private"
@@ -241,6 +246,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
               "TimeToLiveSpecification": {
                 "AttributeName": "ttl",
@@ -294,6 +302,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
               "TimeToLiveSpecification": {
                 "AttributeName": "ttl",
@@ -330,6 +341,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
             "GlobalSecondaryIndexes": [
@@ -379,6 +393,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -408,6 +425,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
             "GlobalSecondaryIndexes": [
@@ -454,6 +474,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
             "GlobalSecondaryIndexes": [
@@ -539,6 +562,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -599,6 +625,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -639,6 +668,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -678,6 +710,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
               "TimeToLiveSpecification": {
@@ -724,6 +759,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -769,6 +807,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
             "GlobalSecondaryIndexes": [
@@ -844,6 +885,9 @@
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
             },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -909,6 +953,9 @@
             ],
             "PointInTimeRecoverySpecification": {
               "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
             "GlobalSecondaryIndexes": [
