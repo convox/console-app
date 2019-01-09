@@ -65,7 +65,7 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
 To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
 
-    $ convox env set INTERNAL=true --promote --wait
+    $ convox env set INTERNAL=true --promote --wait -a console
 
 ## Deploy the Console
 
