@@ -61,7 +61,13 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
     $ convox env set -a console HOST=console.example.org
 
-### Deploy the Console
+### (OPTIONAL) Internal Mode
+
+To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
+
+    $ convox env set INTERNAL=true --promote --wait
+
+## Deploy the Console
 
 Deploy the application contained in this repository.
 
@@ -71,13 +77,7 @@ Deploy the application contained in this repository.
 
     $ convox apps params set RackUrl=Yes -a console
 
-### (OPTIONAL) Internal Mode
-
-To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
-
-    $ convox env set INTERNAL=true --promote --wait
-
-### (OPTIONAL) Integration Setup
+## (OPTIONAL) Integration Setup
 
 If you'd like to use the GitHub, GitLab, or Slack integrations in your private Console you will need to create your own OAuth applications for each service.
 
@@ -107,7 +107,7 @@ Promote the environment changes
 
     $ convox releases promote -a console --wait
 
-### (OPTIONAL) LDAP Authentication
+## (OPTIONAL) LDAP Authentication
 
 You can provide credentials for a secure (TLS) LDAP endpoint to use for authentication.
 
