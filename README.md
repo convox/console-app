@@ -116,6 +116,10 @@ You can provide credentials for a secure (TLS) LDAP endpoint to use for authenti
 
 Set `LDAP_BIND` to a full bind string where `%s` will be substituted for the user's email address.
 
+If your LDAP server does not have a valid certificate issued by a known CA, you can disable certificate validation:
+
+    $ convox env set -a console LDAP_VERIFY=no
+
 Promote the environment changes
 
     $ convox releases promote -a console --wait
