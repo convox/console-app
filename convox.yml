@@ -18,6 +18,7 @@ services:
       - HOST
       - LDAP_ADDR=
       - LDAP_BIND=
+      - LDAP_VERIFY=
       - LICENSE_KEY
       - RACK_KEY
       - SESSION_KEY
@@ -28,7 +29,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.0.3
+    image: enterprise.convox.com/console:2.0.4
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -50,7 +51,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.0.3
+    image: enterprise.convox.com/console:2.0.4
     init: true
     scale:
       count: 1
