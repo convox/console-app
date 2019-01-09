@@ -34,10 +34,6 @@ Wait for this stack to fully complete.
 
     $ bin/export-env console-resources | convox env set -a console
 
-### Configure Console parameters
-
-    $ convox apps params set RackUrl=Yes -a console
-
 ## License Setup
 
 Convox will provide you a license for your Console.
@@ -70,6 +66,16 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 Deploy the application contained in this repository.
 
     $ convox deploy -a console --wait
+
+### Configure Console parameters
+
+    $ convox apps params set RackUrl=Yes -a console
+
+### (OPTIONAL) Internal Mode
+
+To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
+
+    $ convox env set INTERNAL=true --promote --wait
 
 ### (OPTIONAL) Integration Setup
 

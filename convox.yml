@@ -30,6 +30,7 @@ services:
       path: /check
     image: enterprise.convox.com/console:2.0.2
     init: true
+    internal: ${INTERNAL}
     port: https:3000
     scale:
       count: 2
