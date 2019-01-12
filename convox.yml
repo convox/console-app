@@ -3,6 +3,7 @@ services:
     command: bin/web
     domain: ${HOST}
     environment:
+      - AUDIT_LOGS_OBJECT_STORE
       - AUTHENTICATION=
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
@@ -29,7 +30,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.0.8
+    image: enterprise.convox.com/console:2.0.9
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -51,7 +52,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.0.8
+    image: enterprise.convox.com/console:2.0.9
     init: true
     scale:
       count: 1
