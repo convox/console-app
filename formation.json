@@ -382,8 +382,6 @@
               
                 { "AttributeName": "id", "AttributeType": "S" },
               
-                { "AttributeName": "organization-id", "AttributeType": "S" },
-              
               { "Ref": "AWS::NoValue" }
             ],
             "BillingMode": "PAY_PER_REQUEST",
@@ -400,16 +398,6 @@
             },
             
             "GlobalSecondaryIndexes": [
-              
-                {
-                  "IndexName": "organization-id-index",
-                  "Projection": { "ProjectionType": "ALL" },
-                  "KeySchema": [
-                    { "AttributeName": "organization-id", "KeyType": "HASH" },
-                    
-                    { "Ref": "AWS::NoValue" }
-                  ]
-                },
               
               { "Ref": "AWS::NoValue" }
             ]

@@ -14,8 +14,6 @@ deploy-keys:
     organization-id: organization-id
 installs:
   key: id
-  indexes:
-    organization-id: organization-id
 integrations:
   key: id
   indexes:
