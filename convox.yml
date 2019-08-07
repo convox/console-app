@@ -22,6 +22,7 @@ services:
       - LDAP_VERIFY=
       - LICENSE_KEY
       - RACK_KEY
+      - SAML_METADATA=
       - SESSION_KEY
       - SLACK_CLIENT_ID=
       - SLACK_CLIENT_SECRET=
@@ -30,7 +31,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.0.24
+    image: enterprise.convox.com/console:2.0.25
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -52,7 +53,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.0.24
+    image: enterprise.convox.com/console:2.0.25
     init: true
     scale:
       count: 1
