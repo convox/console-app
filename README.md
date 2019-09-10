@@ -123,3 +123,16 @@ If your LDAP server does not have a valid certificate issued by a known CA, you 
 Promote the environment changes
 
     $ convox releases promote -a console --wait
+
+## (OPTIONAL) SAML Authentication
+
+You can provide configuration details to use SAML for authentication.
+
+    $ convox env set -a console AUTHENTICATION=saml
+    $ convox env set -a console SAML_METADATA=https://login.microsoftonline.com/common/FederationMetadata/2007-06/FederationMetadata.xml
+
+`SAML_METADATA` should be set to the metadata endpoint for your SAML Identity Provider.  This varies from provider to provider so please check your documentation from them.
+
+Promote the environment changes
+
+    $ convox releases promote -a console --wait
