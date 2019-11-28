@@ -28,6 +28,10 @@ Create a new CloudFormation stack using the `formation.json` from this repositor
 
 You can use any name you like but the rest of this document will assume the name `console-resources`.
 
+You can do this easily via your AWS Web Console, uploading the `formation.json` at the appropriate stage, or using the `aws cli`
+
+    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
+
 Wait for this stack to fully complete.
 
 ### Configure Console environment
