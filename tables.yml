@@ -49,6 +49,12 @@ tokens:
   key: id
   indexes:
     user-id: user-id
+uninstalls:
+  key: id
+updates:
+  key: id
+  indexes:
+    rack-id-created: rack-id,created
 users:
   key: id
   indexes:
