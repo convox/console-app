@@ -780,9 +780,85 @@
           }
         },
       
-        "ConsolePrivateUsersDynamoDBTable": {
+        "ConsolePrivateUninstallsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
           "DependsOn": "ConsolePrivateTokensDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-uninstalls" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+            
+            "GlobalSecondaryIndexes": [
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+      
+        "ConsolePrivateUpdatesDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUninstallsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-updates" },
+            "AttributeDefinitions": [
+              
+                { "AttributeName": "created", "AttributeType": "S" },
+              
+                { "AttributeName": "id", "AttributeType": "S" },
+              
+                { "AttributeName": "rack-id", "AttributeType": "S" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+            
+            "GlobalSecondaryIndexes": [
+              
+                {
+                  "IndexName": "rack-id-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+              
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+      
+        "ConsolePrivateUsersDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUpdatesDynamoDBTable",
           "Properties": {
             "TableName": { "Fn::Sub": "${TablePrefix}-users" },
             "AttributeDefinitions": [
