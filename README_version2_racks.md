@@ -1,6 +1,6 @@
 # Console Installation
 
-This guide assumes you are installing the Console on the latest, EKS-based (v3) Rack.  If you want to install your Console on an ECS-based v2 Rack, please see the guide [here](README_version2_racks.md)
+This guide assumes you are installing the Console on an ECS-based (v2) Rack.  If you want to install your Console on an EKS-based v3 Rack, please see the guide [here](README.md)
 
 ## Application Setup
 
@@ -12,7 +12,8 @@ This guide assumes you are installing the Console on the latest, EKS-based (v3) 
 
 You can use any name you like but this document will assume the name `console`.
 
-    $ convox apps create console
+    $ convox apps create console --wait
+
 
 ### Set up private registry
 
@@ -40,13 +41,13 @@ Wait for this stack to fully complete (can take ~10 minutes to complete dependin
 
     $ bin/export-env console-resources | convox env set -a console
 
-### Timer setup
+## Timer setup
 
-    $ bin/export-timers | convox env set -a console
+    $ bin/export-timers v2 | convox env set -a console
 
 ## License Setup
 
-Convox will provide you a license key for your Console.
+Convox will provide you a license for your Console.
 
     $ convox env set -a console LICENSE_KEY=...
 
@@ -73,15 +74,19 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
 ### (OPTIONAL) Internal Mode
 
-To make the Console only accessible inside the VPC, you will need to set Internal mode.
+To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
 
-    $ convox env set -a console INTERNAL=true
+    $ convox env set INTERNAL=true --promote --wait -a console
 
 ## Deploy the Console
 
 Deploy the application contained in this repository.
 
-    $ convox deploy -a console
+    $ convox deploy -a console --wait
+
+### Configure Console parameters
+
+    $ convox apps params set RackUrl=Yes -a console
 
 ## (OPTIONAL) Integration Setup
 
@@ -111,7 +116,7 @@ If you'd like to use GitHub Enterprise, you'll also need to set the host:
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    $ convox releases promote -a console --wait
 
 ## (OPTIONAL) LDAP Authentication
 
@@ -128,7 +133,7 @@ If your LDAP server does not have a valid certificate issued by a known CA, you 
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    $ convox releases promote -a console --wait
 
 ## (OPTIONAL) SAML Authentication
 
@@ -141,4 +146,4 @@ You can provide configuration details to use SAML for authentication.
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    $ convox releases promote -a console --wait
