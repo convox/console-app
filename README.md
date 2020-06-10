@@ -1,5 +1,7 @@
 # Console Installation
 
+This guide assumes you are installing the Console on the latest, EKS-based (v3) Rack.  If you want to install your Console on an ECS-based v2 Rack, there are a couple of notes below of extra steps to perform.
+
 ## Application Setup
 
 ### Clone this repository
@@ -10,7 +12,7 @@
 
 You can use any name you like but this document will assume the name `console`.
 
-    $ convox apps create console --wait
+    $ convox apps create console
 
 ### Set up private registry
 
@@ -32,7 +34,7 @@ You can do this easily via your AWS Web Console, uploading the `formation.json` 
 
     $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
 
-Wait for this stack to fully complete.
+Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
 ### Configure Console environment
 
@@ -40,7 +42,7 @@ Wait for this stack to fully complete.
 
 ## License Setup
 
-Convox will provide you a license for your Console.
+Convox will provide you a license key for your Console.
 
     $ convox env set -a console LICENSE_KEY=...
 
@@ -67,17 +69,19 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
 ### (OPTIONAL) Internal Mode
 
-To make the Console only accessible inside the VPC, you will need to set Internal mode. This will require your Rack to have the parameter `Internal=Yes`
+To make the Console only accessible inside the VPC, you will need to set Internal mode.
 
-    $ convox env set INTERNAL=true --promote --wait -a console
+    $ convox env set -a console INTERNAL=true
+
+(If you are deploying your Console app to an older v2 Rack, this will require your Rack to have the parameter `Internal=Yes` set)
 
 ## Deploy the Console
 
 Deploy the application contained in this repository.
 
-    $ convox deploy -a console --wait
+    $ convox deploy -a console
 
-### Configure Console parameters
+### Configure Console parameters (only required for older v2 Racks)
 
     $ convox apps params set RackUrl=Yes -a console
 
@@ -109,7 +113,7 @@ If you'd like to use GitHub Enterprise, you'll also need to set the host:
 
 Promote the environment changes
 
-    $ convox releases promote -a console --wait
+    $ convox releases promote -a console
 
 ## (OPTIONAL) LDAP Authentication
 
@@ -126,7 +130,7 @@ If your LDAP server does not have a valid certificate issued by a known CA, you 
 
 Promote the environment changes
 
-    $ convox releases promote -a console --wait
+    $ convox releases promote -a console
 
 ## (OPTIONAL) SAML Authentication
 
@@ -139,4 +143,4 @@ You can provide configuration details to use SAML for authentication.
 
 Promote the environment changes
 
-    $ convox releases promote -a console --wait
+    $ convox releases promote -a console
