@@ -62,13 +62,13 @@ services:
 timers:
   rack-status:
     command: task rack-status
-    schedule: "${CONSOLE_STATUS_SCHEDULE}"
+    schedule: "*/3 * * * ? *"
     service: worker
   rack-update:
     command: task rack-update
-    schedule: "${CONSOLE_UPDATE_SCHEDULE}"
+    schedule: "*/10 * * * ? *"
     service: worker
   rack-webhooks:
     command: task rack-webhooks
-    schedule: "${CONSOLE_WEBHOOKS_SCHEDULE}"
+    schedule: "*/5 * * * ? *"
     service: worker

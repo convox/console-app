@@ -1,6 +1,6 @@
 # Console Installation
 
-This guide assumes you are installing the Console on the latest, EKS-based (v3) Rack.  If you want to install your Console on an ECS-based v2 Rack, please see the guide [here](README_version2_racks.md)
+This guide assumes you are installing the Console on the latest, EKS-based (v3) Rack.  If you want to install your Console on an ECS-based v2 Rack, there are a couple of notes below of extra steps to perform.
 
 ## Application Setup
 
@@ -40,10 +40,6 @@ Wait for this stack to fully complete (can take ~10 minutes to complete dependin
 
     $ bin/export-env console-resources | convox env set -a console
 
-### Timer setup
-
-    $ bin/export-timers | convox env set -a console
-
 ## License Setup
 
 Convox will provide you a license key for your Console.
@@ -77,11 +73,17 @@ To make the Console only accessible inside the VPC, you will need to set Interna
 
     $ convox env set -a console INTERNAL=true
 
+(If you are deploying your Console app to an older v2 Rack, this will require your Rack to have the parameter `Internal=Yes` set)
+
 ## Deploy the Console
 
 Deploy the application contained in this repository.
 
     $ convox deploy -a console
+
+### Configure Console parameters (only required for older v2 Racks)
+
+    $ convox apps params set RackUrl=Yes -a console
 
 ## (OPTIONAL) Integration Setup
 
