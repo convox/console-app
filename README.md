@@ -38,6 +38,8 @@ Wait for this stack to fully complete (can take ~10 minutes to complete dependin
 
 ### Configure Console environment
 
+You will need to have [jq](https://stedolan.github.io/jq/) installed if you don't already.
+
     $ bin/export-env console-resources | convox env set -a console
 
 ## License Setup
