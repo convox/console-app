@@ -9,4 +9,4 @@ stack=$1
 
 [ -z $stack ] && die "usage: export-env <stack-name>"
 \
-aws cloudformation describe-stacks --stack-name $stack | jq -r '.Stacks[0].Outputs[] | [(.OutputKey | gsub("(?<pre>.)(?<up>[A-Z])";"\(.pre)_\(.up)") | ascii_upcase), .OutputValue] | join("=")' | sort
+aws cloudformation describe-stacks --stack-name $stack --output json | jq -r '.Stacks[0].Outputs[] | [(.OutputKey | gsub("(?<pre>.)(?<up>[A-Z])";"\(.pre)_\(.up)") | ascii_upcase), .OutputValue] | join("=")' | sort
