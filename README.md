@@ -2,7 +2,18 @@
 
 This guide assumes you are installing the Console on the latest, EKS-based (v3) Rack.  If you want to install your Console on an ECS-based v2 Rack, there are a couple of notes below of extra steps to perform.
 
-**If you're looking to install the console in AWS Gov Cloud, refer to [AWS Gov Cloud Installation](./README-gov-cloud.md)**
+## Rack Installation
+
+This step is only necessary if you're using AWS Gov Cloud.
+Regular AWS Cloud installation doesn't require a local rack specifically.
+
+Create a new rack locally using your AWS Gov Cloud credentials
+
+You can pass the same [parameters](https://docs.convox.com/installation/production-rack/aws/) as in the UI using the form key=value
+
+    $ convox rack install aws gov-rack region=us-gov-east-1
+
+don't forget to pass the gov cloud region
 
 ## Application Setup
 
@@ -148,3 +159,49 @@ You can provide configuration details to use SAML for authentication.
 Promote the environment changes
 
     $ convox releases promote -a console
+
+## Steps below are only necessary if you're installing in Gov Cloud
+
+### Move the local rack to the Console
+
+First, go to the console UI, register a new user and name your organization.
+
+Then go to the Account Tab and click "Reset CLI Key" - run the output command in your terminal.
+
+Now, run the following command 
+
+    $ convox rack mv gov-rack orgName/gov-rack
+
+Where `gov-rack` is the name of the rack you created and `orgName` the name of the organization you created in the console.
+
+Go to the "Racks" tab and confirm your rack was moved.
+
+
+### Create an AWS Runtime Integration
+
+Note that this step is only necessary once.
+
+In the Console, go to "Integrations" and click the "+" next to "Runtime".
+
+Select "AWS Gov Web Services" and click "Launch Stack". This will take you to the AWS CloudFormation UI. 
+
+Before creating the stack, make sure to check the box near "I acknowledge that AWS CloudFormation might create IAM resources.".
+
+This stack is creating an IAM Role that the console will use to make changes to rack resources on your behalf.
+
+
+Wait 1-2 minutes and refresh the Integrations UI to confirm the integration was installed
+
+You can now use this Runtime to create additional racks directly from the console.
+
+### Assign the Integration to the moved rack
+
+This step is only necessary for racks you move into the console.
+
+Go to the "Racks" section, click the blue cog icon near your moved rack and in the "Runtime" dropdown, select your newly created Integration. Click "Apply Changes"
+
+### Assign proper console permissions to your moved rack
+
+This step is only necessary for racks you move into the console.
+
+Follow the steps in our [docs](https://docs.convox.com/management/console-rack-management/) - Moving an AWS Rack section to give the console role permission to access the EKS rack cluster.
