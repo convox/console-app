@@ -47,6 +47,10 @@ You can do this easily via your AWS Web Console, uploading the `formation.json` 
 
     $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
 
+If you are using the AWS GovCloud, you have to run this formation stack:
+
+    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
+
 Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
 ### Configure Console environment
@@ -168,7 +172,7 @@ First, go to the console UI, register a new user and name your organization.
 
 Then go to the Account Tab and click "Reset CLI Key" - run the output command in your terminal.
 
-Now, run the following command 
+Now, run the following command
 
     $ convox rack mv gov-rack orgName/gov-rack
 
@@ -183,7 +187,7 @@ Note that this step is only necessary once.
 
 In the Console, go to "Integrations" and click the "+" next to "Runtime".
 
-Select "AWS Gov Web Services" and click "Launch Stack". This will take you to the AWS CloudFormation UI. 
+Select "AWS Gov Web Services" and click "Launch Stack". This will take you to the AWS CloudFormation UI.
 
 Before creating the stack, make sure to check the box near "I acknowledge that AWS CloudFormation might create IAM resources.".
 

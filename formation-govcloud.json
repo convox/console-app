@@ -1,0 +1,1093 @@
+
+  {
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+      "SseEnabled": {
+        "Type": "String",
+        "Default": "false",
+        "AllowedValues": [ "true", "false" ]
+      },
+      "TablePrefix": {
+        "Type": "String",
+        "Default": "console-private"
+      },
+      "TtlEnabled": {
+        "Type": "String",
+        "Default": "false",
+        "AllowedValues": [ "true", "false" ]
+      }
+    },
+    "Outputs": {
+      "AuditLogsObjectStore": {
+        "Value": { "Ref": "ConsolePrivateAuditLogBucket" }
+      },
+      "AwsRegion": {
+        "Value": { "Ref": "AWS::Region" }
+      },
+      "AwsAccessKeyId": {
+        "Value": { "Ref": "ConsolePrivateDynamoDBAccess" }
+      },
+      "AwsSecretAccessKey": {
+        "Value": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBAccess", "SecretAccessKey" ] }
+      },
+      "RackKey": {
+        "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+      },
+      "SessionKey": {
+        "Value": { "Fn::Base64": { "Ref": "AWS::StackId" } }
+      },
+      "TablePrefix": {
+        "Value": { "Ref": "TablePrefix" }
+      },
+      "WorkerQueue": {
+        "Value": { "Ref": "ConsolePrivateWorkerQueue" }
+      }
+    },
+    "Resources": {
+      "ConsolePrivateDynamoDBUser": {
+        "Type": "AWS::IAM::User",
+        "Properties": {
+          "Policies": [
+            {
+              "PolicyName": "ConsoleIAMAccess",
+              "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "dynamodb:BatchGetItem",
+                      "dynamodb:BatchWriteItem",
+                      "dynamodb:DeleteItem",
+                      "dynamodb:DescribeStream",
+                      "dynamodb:DescribeTable",
+                      "dynamodb:GetItem",
+                      "dynamodb:GetRecords",
+                      "dynamodb:ListStreams",
+                      "dynamodb:PutItem",
+                      "dynamodb:Query",
+                      "dynamodb:UpdateItem",
+                      "dynamodb:Scan"
+                    ],
+                    "Resource": { "Fn::Sub": "arn:aws-us-gov:dynamodb:*:*:table/${TablePrefix}-*" }
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": [
+                      "dynamodb:ListTables"
+                    ],
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "ecs:*",
+                    "Resource": "*"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": "s3:*",
+                    "Resource": [
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateAuditLogBucket}" },
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateAuditLogBucket}/*" },
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateBackupBucket}" },
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateBackupBucket}/*" },
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateWorkflowBucket}" },
+                      { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateWorkflowBucket}/*" }
+                    ]
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": [ "sts:AssumeRole", "iam:GetUser", "iam:PassRole" ],
+                    "Resource": "*"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "ConsolePrivateDynamoDBAccess": {
+        "Type": "AWS::IAM::AccessKey",
+        "Properties": {
+          "Serial": "1",
+          "Status": "Active",
+          "UserName": { "Ref": "ConsolePrivateDynamoDBUser" }
+        }
+      },
+      "ConsolePrivateWorkerQueue": {
+        "Type": "AWS::SQS::Queue",
+        "Properties": {
+          "FifoQueue": "true"
+        }
+      },
+      "ConsolePrivateWorkerQueuePolicy": {
+        "Type": "AWS::SQS::QueuePolicy",
+        "Properties": {
+          "Queues": [ { "Ref": "ConsolePrivateWorkerQueue" } ],
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBUser", "Arn" ]} },
+                "Action": [ "sqs:DeleteMessage", "sqs:SendMessage", "sqs:ReceiveMessage" ],
+                "Resource": { "Fn::GetAtt": [ "ConsolePrivateWorkerQueue", "Arn" ] }
+              }
+            ]
+          }
+        }
+      },
+      "ConsolePrivateAuditLogKMSKey": {
+        "Type": "AWS::KMS::Key",
+        "Properties": {
+          "Description": { "Fn::Sub": "${TablePrefix} encryption key" },
+          "Enabled": true,
+          "EnableKeyRotation": true,
+          "KeyPolicy": {
+            "Statement": [
+              {
+                "Sid": "key administration",
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::Sub": "arn:aws-us-gov:iam::${AWS::AccountId}:root" } },
+                "Action": [ "kms:*" ],
+                "Resource": "*"
+              },
+              {
+                "Sid": "key usage",
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBUser", "Arn" ] } },
+                "Action": [
+                  "kms:Encrypt",
+                  "kms:Decrypt",
+                  "kms:ReEncrypt*",
+                  "kms:GenerateDataKey*",
+                  "kms:DescribeKey"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        }
+      },
+      "ConsolePrivateAuditLogBucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
+      },
+      "ConsolePrivateAuditLogBucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+          "Bucket": { "Ref": "ConsolePrivateAuditLogBucket" },
+          "PolicyDocument": {
+            "Statement": [
+              {
+                "Action": [ "s3:PutObject" ],
+                "Effect": "Deny",
+                "Resource": { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateAuditLogBucket}/*" },
+                "Principal": "*",
+                "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+              }
+            ]
+          }
+        }
+      },
+      "ConsolePrivateBackupBucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
+      },
+      "ConsolePrivateBackupBucketPolicy": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+          "Bucket": { "Ref": "ConsolePrivateBackupBucket" },
+          "PolicyDocument": {
+            "Statement": [
+              {
+                "Action": [ "s3:PutObject" ],
+                "Effect": "Deny",
+                "Resource": { "Fn::Sub": "arn:aws-us-gov:s3:::${ConsolePrivateBackupBucket}/*" },
+                "Principal": "*",
+                "Condition": { "StringNotEquals": { "s3:x-amz-server-side-encryption": "aws:kms" } }
+              }
+            ]
+          }
+        }
+      },
+
+        "ConsolePrivateAuditLogsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-audit-logs" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "organization", "AttributeType": "S" },
+
+                { "AttributeName": "rack", "AttributeType": "S" },
+
+                { "AttributeName": "timestamp", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+              "TimeToLiveSpecification": {
+                "AttributeName": "ttl",
+                "Enabled": { "Ref": "TtlEnabled" }
+              },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "rack-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateChallengesDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateAuditLogsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-challenges" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+              "TimeToLiveSpecification": {
+                "AttributeName": "ttl",
+                "Enabled": { "Ref": "TtlEnabled" }
+              },
+
+            "GlobalSecondaryIndexes": [
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateDeployKeysDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateChallengesDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-deploy-keys" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "key-hash", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "key-hash-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "key-hash", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateInstallsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateDeployKeysDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-installs" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateIntegrationsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateInstallsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-integrations" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateJobsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateIntegrationsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-jobs" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "created", "AttributeType": "S" },
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+                { "AttributeName": "status", "AttributeType": "S" },
+
+                { "AttributeName": "workflow-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "created", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "job-created-org-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "status-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "status", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "workflow-id-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "workflow-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateOrganizationInvitesDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateJobsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organization-invites" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "email", "AttributeType": "S" },
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+                { "AttributeName": "token", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "email-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "email", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "token-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "token", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateOrganizationsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationInvitesDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-organizations" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "name", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "name-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "name", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateRacksDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateOrganizationsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-racks" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateSessionsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateRacksDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-sessions" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "user-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+              "TimeToLiveSpecification": {
+                "AttributeName": "ttl",
+                "Enabled": { "Ref": "TtlEnabled" }
+              },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "user-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateTokensDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateSessionsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-tokens" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "user-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "user-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateUninstallsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateTokensDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-uninstalls" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateUpdatesDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUninstallsDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-updates" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "created", "AttributeType": "S" },
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "rack-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "rack-id-created-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack-id", "KeyType": "HASH" },
+                    { "AttributeName": "created", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateUsersDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUpdatesDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-users" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "api-key-hash", "AttributeType": "S" },
+
+                { "AttributeName": "email", "AttributeType": "S" },
+
+                { "AttributeName": "github-id", "AttributeType": "N" },
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "password-reset-token", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "api-key-hash-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "api-key-hash", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "email-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "email", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "github-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "github-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "password-reset-token-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "password-reset-token", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateWebhooksDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateUsersDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-webhooks" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "app-id", "AttributeType": "S" },
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "integration-id", "AttributeType": "S" },
+
+                { "AttributeName": "rack-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "app-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "app-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "integration-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "integration-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "rack-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+        "ConsolePrivateWorkflowsDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "DependsOn": "ConsolePrivateWebhooksDynamoDBTable",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-workflows" },
+            "AttributeDefinitions": [
+
+                { "AttributeName": "id", "AttributeType": "S" },
+
+                { "AttributeName": "integration-id", "AttributeType": "S" },
+
+                { "AttributeName": "name", "AttributeType": "S" },
+
+                { "AttributeName": "organization-id", "AttributeType": "S" },
+
+                { "AttributeName": "trigger-id", "AttributeType": "S" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+
+                {
+                  "IndexName": "integration-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "integration-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "name-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "name", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "organization-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "organization-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "trigger-id-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "trigger-id", "KeyType": "HASH" },
+
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
+      "ConsolePrivateWorkflowBucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+          "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [ { "ServerSideEncryptionByDefault": { "SSEAlgorithm": "aws:kms" } } ]
+          }
+        }
+      }
+    }
+  }
