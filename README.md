@@ -47,9 +47,9 @@ You can do this easily via your AWS Web Console, uploading the `formation.json` 
 
     $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
 
-If you are using the AWS GovCloud, you have to run this formation stack:
+If you are using AWS GovCloud, a different CloudFormation template is provided:
 
-    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
+    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation-govcloud.json
 
 Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
