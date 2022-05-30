@@ -43,13 +43,13 @@ Create a new CloudFormation stack using the `formation.json` from this repositor
 
 You can use any name you like but the rest of this document will assume the name `console-resources`.
 
-You can do this easily via your AWS Web Console, uploading the `formation.json` at the appropriate stage, or using the `aws cli`
+You can do this easily via your AWS Web Console, uploading the `formation.json` at the appropriate stage, or using the `aws cli`:
 
     $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
 
-If you are using AWS GovCloud, a different CloudFormation template is provided:
+If you are using AWS GovCloud, you have to set the `AwsArn` parameter as `aws-us-gov`:
 
-    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation-govcloud.json
+    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters AwsArn=aws-us-gov --template-body file://formation.json
 
 Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
