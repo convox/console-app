@@ -41,7 +41,6 @@ services:
       memory: 500
     test: make test
   rack-sync-worker:
-    build: .
     command: bin/rack-sync-worker
     environment:
       - AWS_REGION
@@ -52,6 +51,7 @@ services:
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - TABLE_PREFIX
+    image: enterprise.convox.com/console:2.2.5
     init: true
     scale:
       count: 1
