@@ -49,7 +49,7 @@ You can do this easily via your AWS Web Console, uploading the `formation.json` 
 
 If you are using AWS GovCloud, you have to set the `AwsArn` parameter as `aws-us-gov`:
 
-    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters AwsArn=aws-us-gov --template-body file://formation.json
+    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters ParameterKey=AwsArn,ParameterValue=aws-us-gov --template-body file://formation.json
 
 Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
@@ -209,3 +209,25 @@ Go to the "Racks" section, click the blue cog icon near your moved rack and in t
 This step is only necessary for racks you move into the console.
 
 Follow the steps in our [docs](https://docs.convox.com/management/console-rack-management/) - Moving an AWS Rack section to give the console role permission to access the EKS rack cluster.
+
+## Updating
+
+To update the rack to a new version, first make sure to update the Cloud Formation stack.
+If you used a custom value for any of the stack parameters, make sure to include them in the cf update command.
+E.g: if you have used a custom value in TablePrefix:
+
+```sh
+aws cloudformation update-stack --stack-name change-me  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation.json
+```
+
+After the stack updates successfully, export the values to your console app:
+
+```sh
+bin/export-env change-me | convox env set -a console
+```
+
+And finally
+
+```sh
+convox deploy -a console
+```

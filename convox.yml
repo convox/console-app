@@ -40,6 +40,23 @@ services:
       cpu: 64
       memory: 500
     test: make test
+  rack-sync-worker:
+    build: .
+    command: bin/rack-sync-worker
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - HOST
+      - LICENSE_KEY
+      - RACK_KEY
+      - RACK_SYNC_WORKER_QUEUE
+      - TABLE_PREFIX
+    init: true
+    scale:
+      count: 1
+      cpu: 128
+      memory: 128
   worker:
     command: bin/worker
     environment:
