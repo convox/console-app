@@ -154,6 +154,23 @@
           }
         }
       },
+      "ConsolePrivateRackSyncWorkerQueuePolicy": {
+        "Type": "AWS::SQS::QueuePolicy",
+        "Properties": {
+          "Queues": [ { "Ref": "ConsolePrivateRackSyncWorkerQueue" } ],
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": { "AWS": { "Fn::GetAtt": [ "ConsolePrivateDynamoDBUser", "Arn" ]} },
+                "Action": [ "sqs:DeleteMessage", "sqs:SendMessage", "sqs:ReceiveMessage" ],
+                "Resource": { "Fn::GetAtt": [ "ConsolePrivateRackSyncWorkerQueue", "Arn" ] }
+              }
+            ]
+          }
+        }
+      },
       "ConsolePrivateAuditLogKMSKey": {
         "Type": "AWS::KMS::Key",
         "Properties": {
