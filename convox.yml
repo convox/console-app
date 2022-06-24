@@ -16,6 +16,7 @@ services:
       - GITHUB_WEBHOOK_SECRET=
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
+      - RACK_SYNC_WORKER_QUEUE
       - HOST
       - LDAP_ADDR=
       - LDAP_BIND=
@@ -31,7 +32,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.2.5
+    image: enterprise.convox.com/console:2.2.6
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -40,6 +41,23 @@ services:
       cpu: 64
       memory: 500
     test: make test
+  rack-sync-worker:
+    command: bin/rack-sync-worker
+    environment:
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - HOST
+      - LICENSE_KEY
+      - RACK_KEY
+      - RACK_SYNC_WORKER_QUEUE
+      - TABLE_PREFIX
+    image: enterprise.convox.com/console:2.2.6
+    init: true
+    scale:
+      count: 1
+      cpu: 128
+      memory: 128
   worker:
     command: bin/worker
     environment:
@@ -53,7 +71,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.2.5
+    image: enterprise.convox.com/console:2.2.6
     init: true
     scale:
       count: 1
