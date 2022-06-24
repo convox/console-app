@@ -214,6 +214,7 @@ Follow the steps in our [docs](https://docs.convox.com/management/console-rack-m
 
 To update the rack to a new version, first make sure to update the Cloud Formation stack.
 If you used a custom value for any of the stack parameters, make sure to include them in the cf update command.
+You can check the "Parameters" section of the CloudFormation stack if you're not sure.
 E.g: if you have used a custom value in TablePrefix:
 
 ```sh
@@ -221,6 +222,10 @@ aws cloudformation update-stack --stack-name change-me  --capabilities CAPABILIT
 ```
 
 After the stack updates successfully, export the values to your console app:
+
+**Warning**
+
+If running a very old version of the console, it's possible that the `bin/export-env` script will output a `RACK_KEY` and `SESSION_KEY` values different than the ones you already set(you can get the current set values by running `convox env -a console`). If that's the case, just remove the variables from the `bin/export-env` output and set the other ones. You can also rollback the release if you forgot to remove them.
 
 ```sh
 bin/export-env change-me | convox env set -a console
