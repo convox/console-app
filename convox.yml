@@ -32,7 +32,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.2.6
+    image: enterprise.convox.com/console:2.2.7
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -52,7 +52,7 @@ services:
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - TABLE_PREFIX
-    image: enterprise.convox.com/console:2.2.6
+    image: enterprise.convox.com/console:2.2.7
     init: true
     scale:
       count: 1
@@ -71,7 +71,7 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.2.6
+    image: enterprise.convox.com/console:2.2.7
     init: true
     scale:
       count: 1
