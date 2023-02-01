@@ -11,7 +11,7 @@ Create a new rack locally using your AWS Gov Cloud credentials
 
 You can pass the same [parameters](https://docs.convox.com/installation/production-rack/aws/) as in the UI using the form key=value
 
-    $ convox rack install aws gov-rack region=us-gov-east-1
+    convox rack install aws gov-rack region=us-gov-east-1
 
 don't forget to pass the gov cloud region
 
@@ -19,13 +19,13 @@ don't forget to pass the gov cloud region
 
 ### Clone this repository
 
-    $ git clone https://github.com/convox/console-app
+    git clone https://github.com/convox/console-app
 
 ### Create the Console application
 
 You can use any name you like but this document will assume the name `console`.
 
-    $ convox apps create console
+    convox apps create console
 
 ### Set up private registry
 
@@ -33,7 +33,7 @@ Convox will provide credentials for a private registry to access the Console ima
 
 Substitute `USERNAME` and `PASSWORD` in this command to add the private registry to your Rack.
 
-    $ convox registries add enterprise.convox.com USERNAME PASSWORD
+    convox registries add enterprise.convox.com USERNAME PASSWORD
 
 ## Resource Stack Setup
 
@@ -45,11 +45,11 @@ You can use any name you like but the rest of this document will assume the name
 
 You can do this easily via your AWS Web Console, uploading the `formation.json` at the appropriate stage, or using the `aws cli`:
 
-    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
+    aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --template-body file://formation.json
 
 If you are using AWS GovCloud, you have to set the `AwsArn` parameter as `aws-us-gov`:
 
-    $ aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters ParameterKey=AwsArn,ParameterValue=aws-us-gov --template-body file://formation.json
+    aws cloudformation create-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters ParameterKey=AwsArn,ParameterValue=aws-us-gov --template-body file://formation.json
 
 Wait for this stack to fully complete (can take ~10 minutes to complete depending on AWS).
 
@@ -57,13 +57,13 @@ Wait for this stack to fully complete (can take ~10 minutes to complete dependin
 
 You will need to have [jq](https://stedolan.github.io/jq/) installed if you don't already.
 
-    $ bin/export-env console-resources | convox env set -a console
+    bin/export-env console-resources | convox env set -a console
 
 ## License Setup
 
 Convox will provide you a license key for your Console.
 
-    $ convox env set -a console LICENSE_KEY=...
+    convox env set -a console LICENSE_KEY=...
 
 ## Custom Domain Setup
 
@@ -74,7 +74,7 @@ Decide on a custom domain for your Console. These instructions will assume `cons
 Create an SSL certificate for your application. You can use `convox certs import` to load a certificate
 that you create manually or you can use the Rack's built-in certificate generator.
 
-    $ convox certs generate console.example.org
+    convox certs generate console.example.org
 
 If you use the automatic certificate generation you will need to accept the certificate validation email that will be sent to the DNS administrator of the domain.
 
@@ -84,13 +84,13 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
 ### Configure app environment
 
-    $ convox env set -a console HOST=console.example.org
+    convox env set -a console HOST=console.example.org
 
 ### (OPTIONAL) Internal Mode
 
 To make the Console only accessible inside the VPC, you will need to set Internal mode.
 
-    $ convox env set -a console INTERNAL=true
+    convox env set -a console INTERNAL=true
 
 (If you are deploying your Console app to an older v2 Rack, this will require your Rack to have the parameter `Internal=Yes` set)
 
@@ -98,11 +98,11 @@ To make the Console only accessible inside the VPC, you will need to set Interna
 
 Deploy the application contained in this repository.
 
-    $ convox deploy -a console
+    convox deploy -a console
 
 ### Configure Console parameters (only required for older v2 Racks)
 
-    $ convox apps params set RackUrl=Yes -a console
+    convox apps params set RackUrl=Yes -a console
 
 ## (OPTIONAL) Integration Setup
 
@@ -118,51 +118,86 @@ Use the following callback URL(s) for each service:
 
 Once created, set the appropriate environment variables on your Console application:
 
-    $ convox env set -a console GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=...
-    $ convox env set -a console GITLAB_CLIENT_ID=... GITLAB_CLIENT_SECRET=...
-    $ convox env set -a console SLACK_CLIENT_ID=... SLACK_CLIENT_SECRET=...
+    convox env set -a console GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=...
+    convox env set -a console GITLAB_CLIENT_ID=... GITLAB_CLIENT_SECRET=...
+    convox env set -a console SLACK_CLIENT_ID=... SLACK_CLIENT_SECRET=...
 
 If you're using GitHub, you'll need to set a random webhook secret:
 
-    $ convox env set -a console GITHUB_WEBHOOK_SECRET=...
+    convox env set -a console GITHUB_WEBHOOK_SECRET=...
 
 If you'd like to use GitHub Enterprise, you'll also need to set the host:
 
-    $ convox env set -a console GITHUB_ENTERPRISE_CLIENT_ID=... GITHUB_ENTERPRISE_CLIENT_SECRET=... GITHUB_ENTERPRISE_HOST=github.mycompany.org
+    convox env set -a console GITHUB_ENTERPRISE_CLIENT_ID=... GITHUB_ENTERPRISE_CLIENT_SECRET=... GITHUB_ENTERPRISE_HOST=github.mycompany.org
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    convox releases promote -a console
 
 ## (OPTIONAL) LDAP Authentication
 
 You can provide credentials for a secure (TLS) LDAP endpoint to use for authentication.
 
-    $ convox env set -a console AUTHENTICATION=ldap
-    $ convox env set -a console LDAP_ADDR=auth.example.org:636 LDAP_BIND=uid=%s,dc=example,dc=org
+    convox env set -a console AUTHENTICATION=ldap
+    convox env set -a console LDAP_ADDR=auth.example.org:636 LDAP_BIND=uid=%s,dc=example,dc=org
 
 Set `LDAP_BIND` to a full bind string where `%s` will be substituted for the user's email address.
 
 If your LDAP server does not have a valid certificate issued by a known CA, you can disable certificate validation:
 
-    $ convox env set -a console LDAP_VERIFY=no
+    convox env set -a console LDAP_VERIFY=no
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    convox releases promote -a console
 
 ## (OPTIONAL) SAML Authentication
 
 You can provide configuration details to use SAML for authentication.
 
-    $ convox env set -a console AUTHENTICATION=saml
-    $ convox env set -a console SAML_METADATA=https://login.microsoftonline.com/common/FederationMetadata/2007-06/FederationMetadata.xml
+    convox env set -a console AUTHENTICATION=saml
+    convox env set -a console SAML_METADATA=https://login.microsoftonline.com/common/FederationMetadata/2007-06/FederationMetadata.xml
 
 `SAML_METADATA` should be set to the metadata endpoint for your SAML Identity Provider.  This varies from provider to provider so please check your documentation from them.
 
 Promote the environment changes
 
-    $ convox releases promote -a console
+    convox releases promote -a console
+
+## (OPTIONAL) Audit logs UI Search
+
+To enable the search feature in the Audit Logs UI it's necessary to create some DynamoDB Indexes and backfill them using a script.
+[Indexes.sh](./dynamo/audits/indexes.sh) contains the commands necessary for creating the indexes.
+Export AWS credentials in your terminal with the `dynamodb:UpdateTable` permission and the TABLE_PREFIX env variable that you can retrieve using the `bin/export-env` script then run each command separately.
+
+You can temporary attach the following police to an IAM user
+
+    ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": "dynamodb:UpdateTable",
+                    "Resource": "*"
+                }
+            ]
+        }
+    ```
+
+Indexes take a while to create and you can only create one at a time. Check the audits table info in Dynamo UI to verify the index status.
+
+![Dynamo Index UI](./dynamo/index-create.png)
+
+After all indexes are created, run the following command to backfill the indexes
+
+    ```sh
+    convox run web -a console dynamo-audit-gsi
+    Running detached process... OK, someid
+    ```
+
+Confirm that the process is running with `convox ps -a console` and wait for it to complete. Depending on how many records you have in the audits table this process can take a while.
 
 ## Steps below are only necessary if you're installing in Gov Cloud
 
@@ -174,12 +209,11 @@ Then go to the Account Tab and click "Reset CLI Key" - run the output command in
 
 Now, run the following command
 
-    $ convox rack mv gov-rack orgName/gov-rack
+    convox rack mv gov-rack orgName/gov-rack
 
 Where `gov-rack` is the name of the rack you created and `orgName` the name of the organization you created in the console.
 
 Go to the "Racks" tab and confirm your rack was moved.
-
 
 ### Create an AWS Runtime Integration
 
@@ -192,7 +226,6 @@ Select "AWS Gov Web Services" and click "Launch Stack". This will take you to th
 Before creating the stack, make sure to check the box near "I acknowledge that AWS CloudFormation might create IAM resources.".
 
 This stack is creating an IAM Role that the console will use to make changes to rack resources on your behalf.
-
 
 Wait 1-2 minutes and refresh the Integrations UI to confirm the integration was installed
 
@@ -217,9 +250,9 @@ If you used a custom value for any of the stack parameters, make sure to include
 You can check the "Parameters" section of the CloudFormation stack if you're not sure.
 E.g: if you have used a custom value in TablePrefix:
 
-```sh
-aws cloudformation update-stack --stack-name change-me  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation.json
-```
+    ```sh
+    aws cloudformation update-stack --stack-name change-me  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation.json
+    ```
 
 After the stack updates successfully, export the values to your console app:
 
@@ -227,12 +260,12 @@ After the stack updates successfully, export the values to your console app:
 
 If running a very old version of the console, it's possible that the `bin/export-env` script will output a `RACK_KEY` and `SESSION_KEY` values different than the ones you already set(you can get the current set values by running `convox env -a console`). If that's the case, just remove the variables from the `bin/export-env` output and set the other ones. You can also rollback the release if you forgot to remove them.
 
-```sh
-bin/export-env change-me | convox env set -a console
-```
+    ```sh
+    bin/export-env change-me | convox env set -a console
+    ```
 
-And finally
+    And finally
 
-```sh
-convox deploy -a console
-```
+    ```sh
+    convox deploy -a console
+    ```
