@@ -1,0 +1,15 @@
+#!/bin/sh
+
+die() {
+  echo $*
+  exit 1
+}
+
+app=$1
+
+[ -z $app ] && die "usage: export-env-v2 <app-name>"
+
+route=$(convox rack | grep Router | awk -F '  +' '{print $2}' | cut -c8-)
+
+echo "CONSOLE_URL=https://web.${app}.${route}"
+echo "CONSOLE_BETA_URL=https://console3.${app}.${route}"
