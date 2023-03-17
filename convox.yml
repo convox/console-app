@@ -1,7 +1,6 @@
 services:
   web:
     command: bin/web
-    domain: ${HOST}
     environment:
       - AUDIT_LOGS_OBJECT_STORE
       - AUTHENTICATION=
@@ -32,7 +31,7 @@ services:
     health:
       interval: 30
       path: /check
-    image: enterprise.convox.com/console:2.2.11
+    image: enterprise.convox.com/console:2.2.16
     init: true
     internal: ${INTERNAL}
     port: https:3000
@@ -52,7 +51,7 @@ services:
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - TABLE_PREFIX
-    image: enterprise.convox.com/console:2.2.11
+    image: enterprise.convox.com/console:2.2.16
     init: true
     scale:
       count: 1
@@ -72,12 +71,94 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.2.11
+    image: enterprise.convox.com/console:2.2.16
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
+  reverse-proxy:
+    image: enterprise.convox.com/console:2.2.16
+    command: bin/reverse-proxy
+    domain: ${HOST}
+    environment:
+      - APP=console
+      - AUDIT_LOGS_OBJECT_STORE
+      - AUTHENTICATION=
+      - AWS_REGION
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - CONSOLE_URL
+      - CONSOLE_BETA_URL
+      - GITHUB_CLIENT_ID=
+      - GITHUB_CLIENT_SECRET=
+      - GITHUB_ENTERPRISE_CLIENT_ID=
+      - GITHUB_ENTERPRISE_CLIENT_SECRET=
+      - GITHUB_ENTERPRISE_HOST=
+      - GITHUB_WEBHOOK_SECRET=
+      - GITLAB_CLIENT_ID=
+      - GITLAB_CLIENT_SECRET=
+      - HOST
+      - LDAP_ADDR=
+      - LDAP_BIND=
+      - LDAP_VERIFY=
+      - LICENSE_KEY
+      - RACK_KEY
+      - RACK_SYNC_WORKER_QUEUE
+      - SAML_METADATA=
+      - SESSION_KEY
+      - SLACK_CLIENT_ID=
+      - SLACK_CLIENT_SECRET=
+      - TABLE_PREFIX
+      - WORKER_QUEUE
+    health:
+      interval: 5
+      grace: 0
+      path: /check
+    init: true
+    port: https:3003
+    scale:
+      count: 2
+      cpu: 64
+      memory: 500
+  console3:
+    image: enterprise.convox.com/console:3.0.1
+    command: web
+    environment:
+      - APP=console
+      - AUDIT_LOGS_OBJECT_STORE
+      - AWS_ACCESS_KEY_ID
+      - AWS_REGION
+      - AWS_SECRET_ACCESS_KEY
+      - GITHUB_CLIENT_ID=
+      - GITHUB_CLIENT_SECRET=
+      - GITHUB_ENTERPRISE_CLIENT_ID=
+      - GITHUB_ENTERPRISE_CLIENT_SECRET=
+      - GITHUB_ENTERPRISE_HOST=
+      - GITHUB_WEBHOOK_SECRET=
+      - GITLAB_CLIENT_ID=
+      - GITLAB_CLIENT_SECRET=
+      - LICENSE_KEY
+      - OAUTH_CALLBACK_HOST=${HOST}
+      - RACK_KEY
+      - RACK_SYNC_WORKER_QUEUE
+      - SESSION_KEY
+      - SLACK_CLIENT_ID=
+      - SLACK_CLIENT_SECRET=
+      - TABLE_PREFIX
+      - TUNNEL_HOST=
+      - VUE_APP_ENVIRONMENT=production
+      - VUE_APP_GTM_AUTH=
+      - VUE_APP_GTM_PREVIEW=
+      - VUE_APP_SENTRY_DSN=
+      - VUE_APP_RECAPTCHA_KEY=
+      - WORKER_QUEUE
+    health: /check
+    port: https:3000
+    scale:
+      count: 2
+      cpu: 64
+      memory: 512
 timers:
   rack-status:
     command: task rack-status

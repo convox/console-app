@@ -86,6 +86,16 @@ Create a CNAME record for this domain to point at the `Router` attribute shown w
 
     $ convox env set -a console HOST=console.example.org
 
+### Configure New Console environment
+
+For v3 rack
+
+    $ bin/export-env-v3 console | convox env set -a console
+
+For v2 rack
+
+    $ bin/export-env-v2 console | convox env set -a console
+
 ### (OPTIONAL) Internal Mode
 
 To make the Console only accessible inside the VPC, you will need to set Internal mode.
