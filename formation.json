@@ -906,6 +906,8 @@
                 { "AttributeName": "id", "AttributeType": "S" },
               
                 { "AttributeName": "password-reset-token", "AttributeType": "S" },
+
+                { "AttributeName": "sso-token", "AttributeType": "S" },
               
               { "Ref": "AWS::NoValue" }
             ],
@@ -939,6 +941,16 @@
                   "Projection": { "ProjectionType": "ALL" },
                   "KeySchema": [
                     { "AttributeName": "email", "KeyType": "HASH" },
+                    
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "sso-token-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "sso-token", "KeyType": "HASH" },
                     
                     { "Ref": "AWS::NoValue" }
                   ]
