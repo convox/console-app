@@ -16,6 +16,7 @@ services:
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
       - RACK_SYNC_WORKER_QUEUE
+      - RATE_LIMIT_DISABLE=true
       - HOST
       - LDAP_ADDR=
       - LDAP_BIND=
@@ -105,6 +106,7 @@ services:
       - LICENSE_KEY
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
+      - RATE_LIMIT_DISABLE=true
       - SAML_METADATA=
       - SESSION_KEY
       - SLACK_CLIENT_ID=
@@ -142,6 +144,7 @@ services:
       - OAUTH_CALLBACK_HOST=${HOST}
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
+      - RATE_LIMIT_DISABLE=true
       - SESSION_KEY
       - SLACK_CLIENT_ID=
       - SLACK_CLIENT_SECRET=
