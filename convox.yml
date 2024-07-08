@@ -37,9 +37,9 @@ services:
     internal: ${INTERNAL}
     port: https:3000
     scale:
-      count: 2
+      count: 1
       cpu: 64
-      memory: 500
+      memory: 256
     test: make test
   rack-sync-worker:
     command: bin/rack-sync-worker
@@ -52,7 +52,7 @@ services:
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - TABLE_PREFIX
-    image: enterprise.convox.com/console:2.2.18
+    image: enterprise.convox.com/console:2.2.20
     init: true
     scale:
       count: 1
@@ -72,14 +72,14 @@ services:
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - WORKER_QUEUE
-    image: enterprise.convox.com/console:2.2.18
+    image: enterprise.convox.com/console:2.2.20
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   reverse-proxy:
-    image: enterprise.convox.com/console:2.2.18
+    image: enterprise.convox.com/console:2.2.20
     command: bin/reverse-proxy
     domain: ${HOST}
     environment:
@@ -89,8 +89,7 @@ services:
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
-      - CONSOLE_URL
-      - CONSOLE_BETA_URL
+      - CONSOLE_TARGET_URL
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
       - GITHUB_ENTERPRISE_CLIENT_ID=
@@ -124,7 +123,7 @@ services:
       cpu: 64
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.2
+    image: enterprise.convox.com/console:3.0.3
     command: web
     environment:
       - APP=console
