@@ -11,5 +11,4 @@ app=$1
 
 route=$(convox rack | grep Router | awk -F '  +' '{print $2}')
 
-echo "CONSOLE_URL=https://${app}-web.${route}"
-echo "CONSOLE_BETA_URL=https://${app}-console3.${route}"
+echo "CONSOLE_TARGET_URL=https://${app}-console3.${route}"

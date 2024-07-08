@@ -254,6 +254,36 @@
         }
       },
       
+        "ConsolePrivateAuditKeysDynamoDBTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": { "Fn::Sub": "${TablePrefix}-audit-keys" },
+            "AttributeDefinitions": [
+                { "AttributeName": "id", "AttributeType": "S" },
+              { "Ref": "AWS::NoValue" }
+            ],
+            "BillingMode": "PAY_PER_REQUEST",
+            "KeySchema": [
+              { "AttributeName": "id", "KeyType": "HASH" },
+              { "Ref": "AWS::NoValue" }
+            ],
+            "PointInTimeRecoverySpecification": {
+              "PointInTimeRecoveryEnabled": "true"
+            },
+            "SSESpecification": {
+              "SSEEnabled": { "Ref": "SseEnabled" }
+            },
+            "TimeToLiveSpecification": {
+              "AttributeName": "ttl",
+              "Enabled": { "Ref": "TtlEnabled" }
+            },
+
+            "GlobalSecondaryIndexes": [
+              { "Ref": "AWS::NoValue" }
+            ]
+          }
+        },
+
         "ConsolePrivateAuditLogsDynamoDBTable": {
           "Type": "AWS::DynamoDB::Table",
           
@@ -284,10 +314,10 @@
               "SSEEnabled": { "Ref": "SseEnabled" }
             },
             
-              "TimeToLiveSpecification": {
-                "AttributeName": "ttl",
-                "Enabled": { "Ref": "TtlEnabled" }
-              },
+            "TimeToLiveSpecification": {
+              "AttributeName": "ttl",
+              "Enabled": { "Ref": "TtlEnabled" }
+            },
             
             "GlobalSecondaryIndexes": [
               
@@ -306,6 +336,36 @@
                   "Projection": { "ProjectionType": "ALL" },
                   "KeySchema": [
                     { "AttributeName": "rack", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "rack-name-org-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "rack-name#org", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "user-org-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user#org", "KeyType": "HASH" },
+                    { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                    { "Ref": "AWS::NoValue" }
+                  ]
+                },
+
+                {
+                  "IndexName": "user-rack-name-org-index",
+                  "Projection": { "ProjectionType": "ALL" },
+                  "KeySchema": [
+                    { "AttributeName": "user#rack-name#org", "KeyType": "HASH" },
                     { "AttributeName": "timestamp", "KeyType": "RANGE" },
                     { "Ref": "AWS::NoValue" }
                   ]
