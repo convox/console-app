@@ -298,6 +298,12 @@
                 { "AttributeName": "rack", "AttributeType": "S" },
               
                 { "AttributeName": "timestamp", "AttributeType": "S" },
+
+                { "AttributeName": "rack-name#org", "AttributeType": "S"},
+
+                { "AttributeName": "user#org", "AttributeType": "S"},
+
+                { "AttributeName": "user#rack-name#org", "AttributeType": "S"},
               
               { "Ref": "AWS::NoValue" }
             ],
