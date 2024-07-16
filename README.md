@@ -282,11 +282,11 @@ After the stack updates successfully, export the updated ENV to your console app
 bin/export-env console-resources | convox env set -a console
 ```
 
-Then run the appropriate command depending on your Console Rack's engine.
+Then run the appropriate command depending on your Console Rack's engine to set the `CONSOLE_TARGET_URL`.
 
 v2
 ```sh
-bin/export-env-v1 console | convox env set -a console
+bin/export-env-v2 console | convox env set -a console
 ```
 
 or
