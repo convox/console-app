@@ -9,6 +9,8 @@ app=$1
 
 [ -z $app ] && die "usage: export-env-v2 <app-name>"
 
-route=$(convox rack | grep Router | awk -F '  +' '{print $2}' | cut -c8-)
+host=$(convox services -a ${app} | grep 'console3 ' | awk -F '  +' '{print $2}')
 
-echo "CONSOLE_TARGET_URL=https://console3.${app}.${route}"
+[ -z $host ] && die "console3 host is not found"
+
+echo "CONSOLE_TARGET_URL=https://${host}"
