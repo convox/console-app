@@ -314,7 +314,7 @@ Then run
 
 v2
 ```sh
-$ bin/export-env-v1 console | convox env set -a console
+$ bin/export-env-v2 console | convox env set -a console
 ```
 
 or
