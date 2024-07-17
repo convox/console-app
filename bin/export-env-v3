@@ -11,6 +11,14 @@ app=$1
 
 host=$(convox services -a ${app} | grep 'console3 ' | awk -F '  +' '{print $2}')
 
+if [ -z $host ]; then
+  host=$(convox services -a ${app} | grep 'web ' | awk -F '  +' '{print $2}' | sed -e "s/^web/console3/")
+fi
+
+if [ -z $host ]; then
+  host=$(convox services -a ${app} | grep 'reverse-proxy ' | awk -F '  +' '{print $2}' | sed -e "s/^reverse-proxy/console3/")
+fi
+
 [ -z $host ] && die "console3 host is not found"
 
 echo "CONSOLE_TARGET_URL=https://${host}"
