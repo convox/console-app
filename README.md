@@ -220,29 +220,110 @@ This step is only necessary for racks you move into the console.
 
 Follow the steps in our [docs](https://docs.convox.com/management/console-rack-management/) - Moving an AWS Rack section to give the console role permission to access the EKS rack cluster.
 
-## Updating
+## Updating to the New Console (Console3)
 
-To update the rack to a new version, first make sure to update the Cloud Formation stack.
-If you used a custom value for any of the stack parameters, make sure to include them in the cf update command.
-You can check the "Parameters" section of the CloudFormation stack if you're not sure.
-E.g: if you have used a custom value in TablePrefix:
+To update the rack to a new version, you must first update the console-resources CloudFormation stack.
+Due to AWS limitations, this will need to be done over three commands as you cannot add multiple Global Secondary Indexes (GSIs) in a single run.
+
+The following update commands assume you have followed this guide and your Console Resources stack is named console-resources. If you installed the Convox Console with a different CloudFormation stack name, you should adjust the `--stack-name` option accordingly.
+Each update will take about a minute or less, and you can check the status of the CloudFormation stack in AWS directly or with the following CLI command:
 
 ```sh
-aws cloudformation update-stack --stack-name change-me  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation.json
+$ aws cloudformation describe-stacks --stack-name console-resources --query 'Stacks[0].[StackName, StackStatus]' --output text
 ```
 
-After the stack updates successfully, export the values to your console app:
+If you used a custom value for any of the stack parameters, make sure to include them in the CloudFormation update command.
+You can check the "Parameters" section of the CloudFormation stack within the AWS Management Console if you're not sure, or with this command:
+
+```sh
+$ aws cloudformation describe-stacks --stack-name console-resources --query 'Stacks[0].Parameters' --output table
+```
+
+A default installed stack will produce this output:
+-------------------------------------
+|          DescribeStacks           |
++---------------+-------------------+
+| ParameterKey  |  ParameterValue   |
++---------------+-------------------+
+|  SseEnabled   |  false            |
+|  TtlEnabled   |  false            |
+|  AwsArn       |  aws              |
+|  TablePrefix  |  console-private  |
++---------------+-------------------+
+
+E.g.: if you have used a custom value in TablePrefix you should alter all three update commands to include the updated `--parameters` configurations:
+
+```sh
+$ aws cloudformation update-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters ParameterKey=TablePrefix,ParameterValue=CustomValue --template-body file://formation-update-#.json
+```
+
+For multiple custom parameters, the format would be like this:
+```sh
+$ aws cloudformation update-stack --stack-name console-resources --capabilities CAPABILITY_IAM --parameters ParameterKey=TablePrefix,ParameterValue=CustomValue1 ParameterKey=AnotherParameter,ParameterValue=CustomValue2 ParameterKey=YetAnotherParameter,ParameterValue=CustomValue3 --template-body file://formation-update-#.json
+```
+
+Once you've verified that you're ready to update the CloudFormation stack, please run the following commands to create the GSIs:
+
+```sh
+$ aws cloudformation update-stack --stack-name console-resources  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation-update-1.json
+```
+
+```sh
+$ aws cloudformation update-stack --stack-name console-resources  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation-update-2.json
+```
+
+```sh
+$ aws cloudformation update-stack --stack-name console-resources  --capabilities CAPABILITY_IAM  --parameters ParameterKey=TablePrefix,UsePreviousValue=true --template-body file://formation-update-3.json
+```
+
+After the stack updates successfully, export the updated ENV to your console app with the command:
+
+```sh
+$ bin/export-env console-resources | convox env set -a console
+```
+
+Then run the appropriate command depending on your Console Rack's engine to set the `CONSOLE_TARGET_URL`.
+
+v2
+```sh
+$ bin/export-env-v2 console | convox env set -a console
+```
+
+or
+
+v3
+```sh
+$ bin/export-env-v3 console | convox env set -a console
+```
+
+Finally, deploy the app to update the Convox Console:
+
+```sh
+$ convox deploy -a console
+```
 
 **Warning**
 
-If running a very old version of the console, it's possible that the `bin/export-env` script will output a `RACK_KEY` and `SESSION_KEY` values different than the ones you already set(you can get the current set values by running `convox env -a console`). If that's the case, just remove the variables from the `bin/export-env` output and set the other ones. You can also rollback the release if you forgot to remove them.
+If running a very old version of the console, it's possible that the `bin/export-env` script will output `RACK_KEY` and `SESSION_KEY` values different from the ones you already set (you can get the current set values by running `convox env -a console`). If that's the case, just remove the variables from the `bin/export-env` output and set the other ones. You can also roll back the release if you forgot to remove them.
 
 ```sh
-bin/export-env change-me | convox env set -a console
+$ bin/export-env console-resources | convox env set -a console
 ```
 
-And finally
+Then run
+
+v2
+```sh
+$ bin/export-env-v2 console | convox env set -a console
+```
+
+or
+
+v3
+```sh
+$ bin/export-env-v3 console | convox env set -a console
+```
 
 ```sh
-convox deploy -a console
+$ convox deploy -a console
 ```
