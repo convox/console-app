@@ -240,6 +240,7 @@ $ aws cloudformation describe-stacks --stack-name console-resources --query 'Sta
 ```
 
 A default installed stack will produce this output:
+```
 -------------------------------------
 |          DescribeStacks           |
 +---------------+-------------------+
@@ -250,6 +251,7 @@ A default installed stack will produce this output:
 |  AwsArn       |  aws              |
 |  TablePrefix  |  console-private  |
 +---------------+-------------------+
+```
 
 E.g.: if you have used a custom value in TablePrefix you should alter all three update commands to include the updated `--parameters` configurations:
 
