@@ -1,18 +1,25 @@
 services:
   worker:
-    command: bin/worker
+    command: worker
     environment:
+      - APP=
+      - APP_BUCKET=
+      - AUDIT_LOGS_OBJECT_STORE
+      - SESSION_KEY
+      - TABLE_PREFIX
+      - WORKER_QUEUE
       - AWS_REGION
       - AWS_ACCESS_KEY_ID
       - AWS_SECRET_ACCESS_KEY
+      - DISCORD_CLIENT_ID=
+      - DISCORD_CLIENT_SECRET=
       - GITHUB_ENTERPRISE_HOST=
       - HOST
       - LICENSE_KEY
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
-      - TABLE_PREFIX
       - TUNNEL_HOST=
-      - WORKER_QUEUE
+      - OAUTH_CALLBACK_HOST=${HOST}
     image: enterprise.convox.com/console:3.0.5
     init: true
     scale:
