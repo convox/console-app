@@ -2,8 +2,7 @@ services:
   worker:
     command: worker
     environment:
-      - APP=
-      - APP_BUCKET=
+      - APP=console
       - AUDIT_LOGS_OBJECT_STORE
       - SESSION_KEY
       - TABLE_PREFIX
