@@ -19,7 +19,7 @@ services:
       - RACK_SYNC_WORKER_QUEUE
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
-    image: enterprise.convox.com/console:3.0.5
+    image: enterprise.convox.com/console:3.0.7
     init: true
     scale:
       count: 1
@@ -70,7 +70,7 @@ services:
       cpu: 64
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.5
+    image: enterprise.convox.com/console:3.0.7
     command: web
     environment:
       - APP=console
