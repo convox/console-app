@@ -78,6 +78,7 @@ services:
       - AWS_ACCESS_KEY_ID
       - AWS_REGION
       - AWS_SECRET_ACCESS_KEY
+      - AUTHENTICATION=
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
       - GITHUB_ENTERPRISE_CLIENT_ID=
@@ -94,6 +95,7 @@ services:
       - SESSION_KEY
       - SLACK_CLIENT_ID=
       - SLACK_CLIENT_SECRET=
+      - SAML_METADATA=
       - TABLE_PREFIX
       - TUNNEL_HOST=
       - VUE_APP_ENVIRONMENT=production
