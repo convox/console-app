@@ -8,17 +8,3 @@ die() {
 app=$1
 
 [ -z $app ] && die "usage: export-env-v2 <app-name>"
-
-host=$(convox services -a ${app} | grep 'console3 ' | awk -F '  +' '{print $2}')
-
-if [ -z $host ]; then
-  host=$(convox services -a ${app} | grep 'web ' | awk -F '  +' '{print $2}' | sed -e "s/^${app}-web/${app}-console3/")
-fi
-
-if [ -z $host ]; then
-  host=$(convox services -a ${app} | grep 'reverse-proxy ' | awk -F '  +' '{print $2}' | sed -e "s/^${app}-reverse-proxy/${app}-console3/")
-fi
-
-[ -z $host ] && die "console3 host is not found"
-
-echo "CONSOLE_TARGET_URL=https://${host}"

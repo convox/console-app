@@ -19,24 +19,23 @@ services:
       - RACK_SYNC_WORKER_QUEUE
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
-    image: enterprise.convox.com/console:3.0.7
+    image: enterprise.convox.com/console:3.0.9
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
-  reverse-proxy:
-    image: enterprise.convox.com/console:2.2.23
-    command: bin/reverse-proxy
+  console3:
+    image: enterprise.convox.com/console:3.0.9
+    command: web
     domain: ${HOST}
     environment:
       - APP=console
       - AUDIT_LOGS_OBJECT_STORE
-      - AUTHENTICATION=
-      - AWS_REGION
       - AWS_ACCESS_KEY_ID
+      - AWS_REGION
       - AWS_SECRET_ACCESS_KEY
-      - CONSOLE_TARGET_URL
+      - AUTHENTICATION=
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
       - GITHUB_ENTERPRISE_CLIENT_ID=
@@ -46,47 +45,6 @@ services:
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
       - HOST
-      - LDAP_ADDR=
-      - LDAP_BIND=
-      - LDAP_VERIFY=
-      - LICENSE_KEY
-      - RACK_KEY
-      - RACK_SYNC_WORKER_QUEUE
-      - RATE_LIMIT_DISABLE=true
-      - SAML_METADATA=
-      - SESSION_KEY
-      - SLACK_CLIENT_ID=
-      - SLACK_CLIENT_SECRET=
-      - TABLE_PREFIX
-      - WORKER_QUEUE
-    health:
-      interval: 5
-      grace: 0
-      path: /check
-    init: true
-    port: https:3003
-    scale:
-      count: 2
-      cpu: 64
-      memory: 500
-  console3:
-    image: enterprise.convox.com/console:3.0.7
-    command: web
-    environment:
-      - APP=console
-      - AUDIT_LOGS_OBJECT_STORE
-      - AWS_ACCESS_KEY_ID
-      - AWS_REGION
-      - AWS_SECRET_ACCESS_KEY
-      - AUTHENTICATION=
-      - GITHUB_CLIENT_ID=
-      - GITHUB_CLIENT_SECRET=
-      - GITHUB_ENTERPRISE_CLIENT_ID=
-      - GITHUB_ENTERPRISE_CLIENT_SECRET=
-      - GITHUB_ENTERPRISE_HOST=
-      - GITHUB_WEBHOOK_SECRET=
-      - GITLAB_CLIENT_ID=
-      - GITLAB_CLIENT_SECRET=
       - LICENSE_KEY
       - OAUTH_CALLBACK_HOST=${HOST}
       - RACK_KEY
@@ -108,7 +66,7 @@ services:
     port: https:3000
     scale:
       count: 2
-      cpu: 64
+      cpu: 128
       memory: 512
 timers:
   rack-status:
