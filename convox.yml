@@ -1,3 +1,9 @@
+resources:
+  cache:
+    type: redis
+    options:
+      version: "7.1"
+      class: "cache.t3.medium"
 services:
   worker:
     command: worker
@@ -19,14 +25,15 @@ services:
       - RACK_SYNC_WORKER_QUEUE
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
-    image: enterprise.convox.com/console:3.0.9
+      - CACHE_REDIS_ADDR=
+    image: enterprise.convox.com/console:3.0.10
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.9
+    image: enterprise.convox.com/console:3.0.10
     command: web
     domain: ${HOST}
     environment:
@@ -62,6 +69,7 @@ services:
       - VUE_APP_SENTRY_DSN=
       - VUE_APP_RECAPTCHA_KEY=
       - WORKER_QUEUE
+      - CACHE_REDIS_ADDR=
     health: /check
     port: https:3000
     scale:
