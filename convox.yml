@@ -26,14 +26,15 @@ services:
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
-    image: enterprise.convox.com/console:3.0.10
+      - API_CONCURRENCY=10000
+    image: enterprise.convox.com/console:3.0.11
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.10
+    image: enterprise.convox.com/console:3.0.11
     command: web
     domain: ${HOST}
     environment:
@@ -70,6 +71,7 @@ services:
       - VUE_APP_RECAPTCHA_KEY=
       - WORKER_QUEUE
       - CACHE_REDIS_ADDR=
+      - API_CONCURRENCY=10000
     health: /check
     port: https:3000
     scale:
