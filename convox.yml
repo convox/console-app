@@ -27,14 +27,14 @@ services:
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
-    image: enterprise.convox.com/console:3.0.14
+    image: enterprise.convox.com/console:3.0.16
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.14
+    image: enterprise.convox.com/console:3.0.16
     command: web
     domain: ${HOST}
     environment:
@@ -64,11 +64,12 @@ services:
       - SAML_METADATA=
       - TABLE_PREFIX
       - TUNNEL_HOST=
-      - VUE_APP_ENVIRONMENT=production
-      - VUE_APP_GTM_AUTH=
-      - VUE_APP_GTM_PREVIEW=
-      - VUE_APP_SENTRY_DSN=
-      - VUE_APP_RECAPTCHA_KEY=
+      - VITE_APP_ENVIRONMENT=production
+      - VITE_APP_GTM_AUTH=
+      - VITE_APP_GTM_PREVIEW=
+      - VITE_APP_SENTRY_DSN=
+      - VITE_APP_STRIPE_PUBLISHABLE_KEY=
+      - VITE_APP_RECAPTCHA_KEY=
       - WORKER_QUEUE
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
