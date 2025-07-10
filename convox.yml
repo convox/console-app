@@ -22,19 +22,20 @@ services:
       - HOST
       - LICENSE_KEY
       - RACK_KEY
+      - RACK_KEY_NEW=
       - RACK_SYNC_WORKER_QUEUE
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
-    image: enterprise.convox.com/console:3.0.16
+    image: enterprise.convox.com/console:3.0.17
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.16
+    image: enterprise.convox.com/console:3.0.17
     command: web
     domain: ${HOST}
     environment:
@@ -55,6 +56,7 @@ services:
       - HOST
       - LICENSE_KEY
       - OAUTH_CALLBACK_HOST=${HOST}
+      - RACK_KEY_NEW=
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - RATE_LIMIT_DISABLE=true
