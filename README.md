@@ -305,19 +305,17 @@ $ convox rack mv console-rack orgName/console-rack
 
 > **Note**: Replace `console-rack` with your rack name if different, and `orgName` with your actual organization name you set at user registration.
 
-7. After moving the rack, you'll need to switch to it again as it now has a new name:
+7. After moving the rack, you'll need to switch to it again as it now has your organization name attached:
 
 ```bash
 $ convox switch console-rack
 ```
 
-8. Verify the rack is now managed by the Console:
+8. Verify the rack is addressed and running:
 
 ```bash
 $ convox rack
 ```
-
-You should see the rack details showing it's now accessible through the Console.
 
 9. Confirm the rack appears with its organization prefix:
 
@@ -330,6 +328,8 @@ orgName/console-rack    aws       running
 10. Verify the rack appears in the Console UI by navigating to the "Racks" tab (may take up to 30 seconds after `convox rack mv` command)
 
 ### Create an AWS Runtime Integration
+
+> **Note**: Ensure you're authenticated to the AWS Console on the account where you installed the rack before proceeding.
 
 1. Go to the "Integrations" page in the Console
 2. Click the "+" button in the Runtime tab
