@@ -1,6 +1,8 @@
 # Console Installation
 
-This guide provides instructions for installing the Convox Console on the latest EKS-based (v3) Rack. If you need to install your Console on an ECS-based v2 Rack, please see [README-v2.md](README-v2.md) for v2-specific instructions.
+This guide provides instructions for installing the Convox Console on the latest EKS-based (v3) Rack. 
+
+> **Note**: If you need to install your Console on an ECS-based v2 Rack, please use the v2-specific release tag (e.g., `3.0.17-v2`) which contains v2-compatible instructions.
 
 ## Prerequisites
 
