@@ -1,3 +1,9 @@
+resources:
+  cache:
+    type: elasticache-redis
+    options:
+      version: "7.1"
+      class: "cache.t3.small"
 services:
   worker:
     command: worker
@@ -16,17 +22,20 @@ services:
       - HOST
       - LICENSE_KEY
       - RACK_KEY
+      - RACK_KEY_NEW=
       - RACK_SYNC_WORKER_QUEUE
       - TUNNEL_HOST=
       - OAUTH_CALLBACK_HOST=${HOST}
-    image: enterprise.convox.com/console:3.0.9
+      - CACHE_REDIS_ADDR=
+      - API_CONCURRENCY=10000
+    image: enterprise.convox.com/console:3.0.17
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.9
+    image: enterprise.convox.com/console:3.0.17
     command: web
     domain: ${HOST}
     environment:
@@ -47,6 +56,7 @@ services:
       - HOST
       - LICENSE_KEY
       - OAUTH_CALLBACK_HOST=${HOST}
+      - RACK_KEY_NEW=
       - RACK_KEY
       - RACK_SYNC_WORKER_QUEUE
       - RATE_LIMIT_DISABLE=true
@@ -56,12 +66,15 @@ services:
       - SAML_METADATA=
       - TABLE_PREFIX
       - TUNNEL_HOST=
-      - VUE_APP_ENVIRONMENT=production
-      - VUE_APP_GTM_AUTH=
-      - VUE_APP_GTM_PREVIEW=
-      - VUE_APP_SENTRY_DSN=
-      - VUE_APP_RECAPTCHA_KEY=
+      - VITE_APP_ENVIRONMENT=production
+      - VITE_APP_GTM_AUTH=
+      - VITE_APP_GTM_PREVIEW=
+      - VITE_APP_SENTRY_DSN=
+      - VITE_APP_STRIPE_PUBLISHABLE_KEY=
+      - VITE_APP_RECAPTCHA_KEY=
       - WORKER_QUEUE
+      - CACHE_REDIS_ADDR=
+      - API_CONCURRENCY=10000
     health: /check
     port: https:3000
     scale:
