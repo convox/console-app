@@ -2,7 +2,7 @@
 
 This guide provides instructions for installing the Convox Console on the latest EKS-based (v3) Rack. 
 
-> **Note**: If you need to install your Console on an ECS-based v2 Rack, please use the v2-specific release tag (e.g., `3.0.17-v2`) which contains v2-compatible instructions.
+> **Note**: If you need to install your Console on an ECS-based v2 Rack, please use the v2-specific release tag/branch (e.g., `master-v2` or `3.0.17-v2`) which contains v2-compatible instructions.
 
 ## Prerequisites
 
@@ -75,9 +75,13 @@ $ convox rack install aws gov-console-rack region=us-gov-east-1 \
 
 ### Clone the Repository
 
+Clone the Console application repository and switch to the master-v3 branch:
+
 ```bash
 $ git clone https://github.com/convox/console-app && cd console-app && git checkout master-v3
 ```
+
+> **Note**: The `master-v3` branch contains the latest Console version compatible with v3 (EKS-based) racks.
 
 ### Create the Console Application
 
