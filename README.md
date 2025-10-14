@@ -17,7 +17,7 @@ Verify your installations:
 ```bash
 $ convox version
 $ terraform version
-$ aws sts get-caller-identity
+$ aws --version
 ```
 
 ## Rack Installation
@@ -33,19 +33,20 @@ $ aws sts get-caller-identity
 Then install the rack with recommended parameters:
 
 ```bash
-$ convox rack install aws region=us-east-1 \
+$ convox rack install aws console-rack region=us-east-1 \
     node_type=c6i.large \
     build_node_enabled=true \
     build_node_type=c6i.large
 ```
 
 > **Note**: 
+> - `console-rack` is the name for your new rack - you can change this to any name you prefer
 > - Adjust the `region` parameter to your desired AWS region (e.g., `us-west-2`, `eu-west-1`)
 > - The `c6i.large` instance type is our recommended cost-effective node size for Console hosting racks
 > - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in development environments
 > - Monitor your rack's resource utilization after deployment - you can tune down to smaller nodes later if they are underutilized
 > - These parameters (except region) can be changed at any time using `convox rack params set`
-> - Rack installation typically takes 20-30 minutes Upon completion, you'll see output similar to:
+> - Rack installation typically takes 20-30 minutes. Upon completion, you'll see output similar to:
 > ```
 > api = <sensitive>
 > provider = "aws"
@@ -57,28 +58,36 @@ $ convox rack install aws region=us-east-1 \
 For AWS GovCloud deployments, create a new rack locally using your AWS GovCloud credentials:
 
 ```bash
-$ convox rack install aws gov-rack region=us-gov-east-1 \
+$ convox rack install aws gov-console-rack region=us-gov-east-1 \
     node_type=c6i.large \
     build_node_enabled=true \
     build_node_type=c6i.large
 ```
 
 > **Important**: 
+> - `gov-console-rack` is the name for your new rack - you can change this to any name you prefer
 > - Specify the appropriate GovCloud region (e.g., `us-gov-east-1` or `us-gov-west-1`)
 > - The `c6i.large` instance type is our recommended cost-effective node size for Console hosting racks
 > - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in development environments
 > - Monitor your rack's resource utilization after deployment - you can tune down to smaller nodes later if they are underutilized
 > - These parameters (except region) can be changed at any time using `convox rack params set`
-
 ## Application Setup
 
 ### Clone the Repository
 
 ```bash
-$ git clone https://github.com/convox/console-app && cd console-app
+$ git clone https://github.com/convox/console-app && cd console-app && git checkout master-v3
 ```
 
 ### Create the Console Application
+
+First, switch to your newly created rack:
+
+```bash
+$ convox switch console-rack
+```
+
+> **Note**: If you chose a different rack name during installation, use that name instead. Alternatively, you can skip this step and append `-r rackName` to all subsequent commands.
 
 Create the Console application with your chosen name. This guide uses `console` as the example:
 
@@ -108,7 +117,9 @@ $ aws cloudformation create-stack \
     --stack-name console-resources \
     --capabilities CAPABILITY_IAM \
     --template-body file://formation.json \
-    --region us-east-1
+    --region us-east-1 \
+    --output text \
+    --no-cli-pager
 ```
 
 **For AWS GovCloud:**
@@ -118,7 +129,9 @@ $ aws cloudformation create-stack \
     --capabilities CAPABILITY_IAM \
     --parameters ParameterKey=AwsArn,ParameterValue=aws-us-gov \
     --template-body file://formation.json \
-    --region us-gov-east-1
+    --region us-gov-east-1 \
+    --output text \
+    --no-cli-pager
 ```
 
 > **Note**: If you installed your rack in a different region, adjust the `--region` parameter accordingly.
@@ -129,18 +142,22 @@ Wait for the stack to complete (approximately 10 minutes). You can check the sta
 $ aws cloudformation describe-stacks \
     --stack-name console-resources \
     --query 'Stacks[0].StackStatus' \
-    --region us-east-1
+    --region us-east-1 \
+    --output text \
+    --no-cli-pager
 ```
 
 > **Note**: You can also monitor the CloudFormation stack progress in the AWS Console under CloudFormation → Stacks → console-resources.
 
 ### Configure Console Environment
 
-Export the CloudFormation outputs as environment variables:
+Once the `console-resources` CloudFormation stack shows `CREATE_COMPLETE` status, export the stack outputs as environment variables:
 
 ```bash
 $ bin/export-env console-resources | convox env set -a console
 ```
+
+> **Note**: Ensure the CloudFormation stack has fully completed before running this command, as it needs to read the stack outputs.
 
 You can verify the environment variables were set correctly:
 
@@ -205,6 +222,8 @@ $ convox env set -a console HOST=console.example.org
 
 ### (Optional) Internal Mode
 
+> **Advanced Configuration**: This is an advanced security configuration. We highly recommend completing the initial Console setup and verification before enabling internal mode. This allows you to ensure everything is working correctly while the Console is still publicly accessible.
+
 To make the Console only accessible within your VPC:
 
 ```bash
@@ -228,6 +247,8 @@ Deploy the Console application:
 $ convox deploy -a console
 ```
 
+> **Note**: The first deployment typically takes 5-10 minutes as it needs to create the Redis cache resource. You will see repeated messages stating `Waiting on dependent resources to be completed` - this is normal while the Redis instance is being provisioned.
+
 ## Verification
 
 After deployment completes, you should be able to access your Console at your configured domain (e.g., https://console.example.org).
@@ -238,8 +259,10 @@ After deployment, configure the Redis cache by setting the CACHE_REDIS_ADDR envi
 
 **Automatic configuration:**
 ```bash
-$ convox env set -a console CACHE_REDIS_ADDR=$(convox resources -a console | sed -n 's/.*elasticache-redis.*redis:\/\/\(.*\)\/0/\1/p')
+$ convox env set -a console CACHE_REDIS_ADDR=$(convox resources -a console | sed -n 's/.*elasticache-redis.*redis:\/\/\(.*\)\/0/\1/p') && convox releases promote -a console
 ```
+
+> **Note**: This command sets the Redis cache address and immediately promotes the release to apply the configuration.
 
 **Manual configuration:**
 1. Get the Redis URL:
@@ -267,14 +290,40 @@ At this point, you have a CLI-managed rack hosting your Console application. To 
 
 1. Navigate to your Console URL (e.g., https://console.example.org)
 2. Register a new user and create your organization
-3. Go to the Account tab and click "Reset CLI Key", then run the provided command
-4. Move the rack to your organization:
+3. Click on the user account icon in the upper right corner of the Console
+4. In the Account Settings panel, click the refresh/reset button next to "CLI Token" to generate a new CLI key
+5. Copy and run the provided login command in your terminal
+6. Move the rack to your organization:
 
 ```bash
-$ convox rack mv my-rack orgName/my-rack
+$ convox rack mv console-rack orgName/console-rack
 ```
 
-4. Verify the rack appears in the "Racks" tab (may take up to 30 seconds)
+> **Note**: Replace `console-rack` with your rack name if different, and `orgName` with your actual organization name you set at user registration.
+
+7. After moving the rack, you'll need to switch to it again as it now has a new name:
+
+```bash
+$ convox switch console-rack
+```
+
+8. Verify the rack is now managed by the Console:
+
+```bash
+$ convox rack
+```
+
+You should see the rack details showing it's now accessible through the Console.
+
+9. Confirm the rack appears with its organization prefix:
+
+```bash
+$ convox racks
+NAME                    PROVIDER  STATUS
+orgName/console-rack    aws       running
+```
+
+10. Verify the rack appears in the Console UI by navigating to the "Racks" tab (may take up to 30 seconds after `convox rack mv` command)
 
 ### Create an AWS Runtime Integration
 
@@ -296,12 +345,83 @@ $ convox rack mv my-rack orgName/my-rack
 
 ### Configure Console Permissions
 
-**Critical Step**: This step is required for the Console to properly manage the EKS cluster. It involves using kubectl commands to modify cluster permissions.
+**Critical Step**: This step is required for the Console to properly manage the EKS cluster. It grants the Console's IAM role permission to access your rack's Kubernetes cluster.
 
-Follow the instructions in the [documentation](https://docs.convox.com/management/console-rack-management#moving-an-aws-rack) to grant the console role permission to access the EKS rack cluster.
+1. First, get your kubectl configuration for the rack:
 
-> **Important**: This step is essential for proper Console functionality. If you're not comfortable with kubectl commands or have any concerns about modifying cluster permissions, please reach out to Convox support for assistance. We're happy to guide you through this process.
+```bash
+$ convox rack kubeconfig > ~/.kube/config
+```
 
+2. Verify you're connected to the correct cluster:
+
+```bash
+$ kubectl get ns
+```
+
+You should see namespaces including your rack name and app namespaces.
+
+3. Find the Console's IAM role ARN in AWS:
+   - Go to your AWS IAM Console
+   - Search for a role named `convox-YOURORGID-ConsoleRole-XXXXXXXXXXXX`
+   - Copy the full ARN (e.g., `arn:aws:iam::123456789012:role/convox-abc123-ConsoleRole-1234567890`)
+   - **Important**: If the ARN contains `/convox/` between `role/` and the role name, remove that part
+
+4. Edit the aws-auth ConfigMap to grant the Console access:
+
+```bash
+$ kubectl edit configmap/aws-auth -n kube-system
+```
+
+5. Add the following entry to the `mapRoles` section (be careful with YAML formatting):
+
+```yaml
+    - rolearn: arn:aws:iam::YOURACCOUNTID:role/convox-YOURORGID-ConsoleRole-XXXXXXXXXXXX
+      username: convox-console
+      groups:
+      - system:masters
+```
+
+> **Note**: Replace the `rolearn` with the actual ARN you copied in step 3.
+
+6. Save and exit the editor (`:wq` in vim, `Ctrl+X` then `Y` in nano)
+
+7. Verify the change was applied:
+
+```bash
+$ kubectl get configmap aws-auth -n kube-system -o yaml | grep -A2 -B1 convox-console
+```
+
+You should see your newly added role mapping in the output.
+
+8. For a complete verification, check the entire ConfigMap:
+
+```bash
+$ kubectl get configmap aws-auth -n kube-system -o yaml
+```
+
+The output should look similar to this (with your specific values):
+
+```yaml
+apiVersion: v1
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::123456789012:role/console-rack-nodes
+      groups:
+      - system:bootstrappers
+      - system:nodes
+      username: system:node:{{EC2PrivateDNSName}}
+    - rolearn: arn:aws:iam::123456789012:role/convox-abc123-ConsoleRole-XXXXXXXXXXXX
+      username: convox-console
+      groups:
+      - system:masters
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+```
+
+> **Important**: Be very careful when editing the aws-auth ConfigMap. Incorrect changes can lock you out of your cluster. If you're not comfortable with kubectl commands or have any concerns, please reach out to Convox support for assistance.
 ## Optional Integrations
 
 ### GitHub, GitLab, and Slack
@@ -423,4 +543,4 @@ If you configured SAML or LDAP authentication:
 
 ## Support
 
-For additional support, please contact Convox support with your license key and any error messages you encounter.
+For additional support, please contact Convox support with any error messages you encounter.
