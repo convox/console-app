@@ -43,7 +43,7 @@ $ convox rack install aws console-rack region=us-east-1 \
 > - `console-rack` is the name for your new rack - you can change this to any name you prefer
 > - Adjust the `region` parameter to your desired AWS region (e.g., `us-west-2`, `eu-west-1`)
 > - The `c6i.large` instance type is our recommended cost-effective node size for Console hosting racks
-> - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in development environments
+> - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in smaller environments
 > - Monitor your rack's resource utilization after deployment - you can tune down to smaller nodes later if they are underutilized
 > - These parameters (except region) can be changed at any time using `convox rack params set`
 > - Rack installation typically takes 20-30 minutes. Upon completion, you'll see output similar to:
@@ -68,7 +68,7 @@ $ convox rack install aws gov-console-rack region=us-gov-east-1 \
 > - `gov-console-rack` is the name for your new rack - you can change this to any name you prefer
 > - Specify the appropriate GovCloud region (e.g., `us-gov-east-1` or `us-gov-west-1`)
 > - The `c6i.large` instance type is our recommended cost-effective node size for Console hosting racks
-> - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in development environments
+> - You can use smaller instance types (e.g., `t3.medium`) for additional cost savings in smaller environments
 > - Monitor your rack's resource utilization after deployment - you can tune down to smaller nodes later if they are underutilized
 > - These parameters (except region) can be changed at any time using `convox rack params set`
 ## Application Setup
