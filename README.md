@@ -11,6 +11,7 @@ Before beginning the Console installation, ensure you have the following tools i
 - **Convox CLI**: Follow the [installation instructions](https://docs.convox.com/installation/cli)
 - **Terraform**: Required for rack installation ([download here](https://www.terraform.io/downloads))
 - **AWS CLI**: Required for AWS operations ([installation guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html))
+- **kubectl**: Required for Kubernetes operations ([installation guide](https://kubernetes.io/docs/tasks/tools/))
 - **jq**: Required for JSON processing ([download here](https://stedolan.github.io/jq/))
 
 Verify your installations:
