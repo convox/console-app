@@ -19,6 +19,8 @@ Verify your installations:
 $ convox version
 $ terraform version
 $ aws --version
+$ kubectl version --client
+$ jq --version
 ```
 
 ## Rack Installation
