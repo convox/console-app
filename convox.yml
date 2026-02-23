@@ -1,9 +1,9 @@
 resources:
   cache:
-    type: elasticache-redis
+    type: redis
     options:
       version: "7.1"
-      class: "cache.t3.small"
+      class: "cache.t3.medium"
 services:
   worker:
     command: worker
@@ -28,14 +28,14 @@ services:
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
-    image: enterprise.convox.com/console:3.0.20
+    image: enterprise.convox.com/console:3.0.21
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.20
+    image: enterprise.convox.com/console:3.0.21
     command: web
     domain: ${HOST}
     environment:
