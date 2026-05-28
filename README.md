@@ -114,6 +114,8 @@ $ convox registries add enterprise.convox.com USERNAME PASSWORD
 
 ## Resource Stack Setup
 
+> **Upgrading from a version before 3.0.26?** The `formation.json` in this release adds new DynamoDB tables required by Console 3.0.26+. You must update your existing CloudFormation stack before deploying the new Console version. See [Updating an Existing Resource Stack](#updating-an-existing-resource-stack) below. New installations can skip this notice.
+
 ### Create the CloudFormation Stack
 
 Create a new CloudFormation stack using the `formation.json` from this repository.
@@ -155,6 +157,46 @@ $ aws cloudformation describe-stacks \
 ```
 
 > **Note**: You can also monitor the CloudFormation stack progress in the AWS Console under CloudFormation → Stacks → console-resources.
+
+### Updating an Existing Resource Stack
+
+If you are upgrading from a Console version before 3.0.26, update your existing `console-resources` stack with the latest `formation.json` to add the new required DynamoDB tables. This is a safe, additive operation that creates new resources without modifying existing tables or data.
+
+**For Standard AWS:**
+```bash
+$ aws cloudformation update-stack \
+    --stack-name console-resources \
+    --capabilities CAPABILITY_IAM \
+    --template-body file://formation.json \
+    --region us-east-1 \
+    --output text \
+    --no-cli-pager
+```
+
+**For AWS GovCloud:**
+```bash
+$ aws cloudformation update-stack \
+    --stack-name console-resources \
+    --capabilities CAPABILITY_IAM \
+    --parameters ParameterKey=AwsArn,ParameterValue=aws-us-gov \
+    --template-body file://formation.json \
+    --region us-gov-east-1 \
+    --output text \
+    --no-cli-pager
+```
+
+Wait for the stack update to complete. You can check the status with:
+
+```bash
+$ aws cloudformation describe-stacks \
+    --stack-name console-resources \
+    --query 'Stacks[0].StackStatus' \
+    --region us-east-1 \
+    --output text \
+    --no-cli-pager
+```
+
+The stack status should transition from `UPDATE_IN_PROGRESS` to `UPDATE_COMPLETE`. Once complete, proceed with deploying the new Console version.
 
 ### Configure Console Environment
 
@@ -540,6 +582,23 @@ If you configured SAML or LDAP authentication:
 > - Check logs with `convox logs -a console` for authentication errors
 > - Verify your metadata URL (SAML) or LDAP server is accessible from the Console
 > - Ensure callback URLs are correctly configured in your identity provider
+
+## Optional Tuning
+
+These environment variables have safe defaults and do not need to be set for normal operation. They are available for operators who want to adjust logging, retention, or performance characteristics.
+
+| Variable | Type | Default | Valid Range | Description |
+|----------|------|---------|-------------|-------------|
+| `LOG_LEVEL` | string | `info` | `info`, `verbose`, `debug` | Controls Console logging verbosity. `info` logs errors only. `verbose` adds DynamoDB operation timing. `debug` adds Redis cache hit/miss logging. |
+| `APP_EVENT_TTL_DAYS` | integer | `90` | 0+ (0 disables) | Retention horizon in days for app lifecycle events in DynamoDB. Table-level TTL pruning must be enabled separately via AWS CLI. |
+| `CONSOLE_COST_ROLLUP_RACK_CONCURRENCY` | integer | `8` | 1-24 | Maximum concurrent rack fan-out during cost rollup queries. Lower values reduce peak DynamoDB load at the cost of slower cost page rendering. |
+
+To set any of these:
+
+```bash
+$ convox env set -a console LOG_LEVEL=verbose
+$ convox releases promote -a console
+```
 
 ## Troubleshooting
 

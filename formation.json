@@ -1266,6 +1266,43 @@
         }
       },
     
+      "ConsolePrivateAppEventsDynamoDBTable": {
+        "Type": "AWS::DynamoDB::Table",
+        "DependsOn": "ConsolePrivateRolesDynamoDBTable",
+        "Properties": {
+          "TableName": { "Fn::Sub": "${TablePrefix}-app-events" },
+          "AttributeDefinitions": [
+              { "AttributeName": "id", "AttributeType": "S" },
+              { "AttributeName": "org#rack#app", "AttributeType": "S" },
+              { "AttributeName": "timestamp", "AttributeType": "S" },
+            { "Ref": "AWS::NoValue" }
+          ],
+          "BillingMode": "PAY_PER_REQUEST",
+          "KeySchema": [
+            { "AttributeName": "id", "KeyType": "HASH" },
+            { "Ref": "AWS::NoValue" }
+          ],
+          "PointInTimeRecoverySpecification": {
+            "PointInTimeRecoveryEnabled": "true"
+          },
+          "SSESpecification": {
+            "SSEEnabled": { "Ref": "SseEnabled" }
+          },
+          "GlobalSecondaryIndexes": [
+              {
+                "IndexName": "org-rack-app-index",
+                "Projection": { "ProjectionType": "ALL" },
+                "KeySchema": [
+                  { "AttributeName": "org#rack#app", "KeyType": "HASH" },
+                  { "AttributeName": "timestamp", "KeyType": "RANGE" },
+                  { "Ref": "AWS::NoValue" }
+                ]
+              },
+            { "Ref": "AWS::NoValue" }
+          ]
+        }
+      },
+
     "ConsolePrivateWorkflowBucket": {
       "Type": "AWS::S3::Bucket",
       "Properties": {
