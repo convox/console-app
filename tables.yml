@@ -1,3 +1,7 @@
+app-events:
+  key: id
+  indexes:
+    org-rack-app: org#rack#app,timestamp
 audit-logs:
   key: id
   ttl: ttl
