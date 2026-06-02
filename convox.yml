@@ -28,14 +28,14 @@ services:
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
-    image: enterprise.convox.com/console:3.0.26
+    image: enterprise.convox.com/console:3.0.27
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.26
+    image: enterprise.convox.com/console:3.0.27
     command: web
     domain: ${HOST}
     environment:
