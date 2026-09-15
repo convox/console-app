@@ -21,6 +21,7 @@ services:
       - GITHUB_ENTERPRISE_HOST=
       - HOST
       - LICENSE_KEY
+      - LOG_LEVEL=
       - RACK_KEY
       - RACK_KEY_NEW=
       - RACK_SYNC_WORKER_QUEUE
@@ -28,23 +29,25 @@ services:
       - OAUTH_CALLBACK_HOST=${HOST}
       - CACHE_REDIS_ADDR=
       - API_CONCURRENCY=10000
-    image: enterprise.convox.com/console:3.0.21
+    image: enterprise.convox.com/console:3.0.32
     init: true
     scale:
       count: 1
       cpu: 128
       memory: 500
   console3:
-    image: enterprise.convox.com/console:3.0.21
+    image: enterprise.convox.com/console:3.0.32
     command: web
     domain: ${HOST}
     environment:
       - APP=console
+      - APP_EVENT_TTL_DAYS=
       - AUDIT_LOGS_OBJECT_STORE
       - AWS_ACCESS_KEY_ID
       - AWS_REGION
       - AWS_SECRET_ACCESS_KEY
       - AUTHENTICATION=
+      - CONSOLE_COST_ROLLUP_RACK_CONCURRENCY=
       - GITHUB_CLIENT_ID=
       - GITHUB_CLIENT_SECRET=
       - GITHUB_ENTERPRISE_CLIENT_ID=
@@ -54,7 +57,11 @@ services:
       - GITLAB_CLIENT_ID=
       - GITLAB_CLIENT_SECRET=
       - HOST
+      - LDAP_ADDR=
+      - LDAP_BIND=
+      - LDAP_VERIFY=
       - LICENSE_KEY
+      - LOG_LEVEL=
       - OAUTH_CALLBACK_HOST=${HOST}
       - RACK_KEY_NEW=
       - RACK_KEY
